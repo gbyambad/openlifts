@@ -5,8 +5,10 @@ import 'package:drift/native.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:openlifts/core/database/app_database.dart';
+import 'package:openlifts/core/database/tables.dart';
 import 'package:openlifts/core/providers/database_provider.dart';
 import 'package:openlifts/core/seed/bootstrap.dart';
+import 'package:openlifts/features/programs/domain/set_group_resolver.dart';
 import 'package:openlifts/features/progression/data/lift_progress_repository_impl.dart';
 import 'package:openlifts/features/sessions/application/active_workout_controller.dart';
 import 'package:openlifts/features/settings/data/settings_repository_impl.dart';
@@ -122,6 +124,84 @@ void main() {
     );
   });
 
+  test('setSetWeightFrom cascades to later sets, leaving earlier ones',
+      () async {
+    final (db, container) = await _seeded();
+    addTearDown(db.close);
+    addTearDown(container.dispose);
+
+    final provider = activeWorkoutControllerProvider('sl5x5-a');
+    await container.read(provider.future);
+    final notifier = container.read(provider.notifier);
+
+    final before = container.read(provider).value!.lifts[0];
+    expect(before.workingSets.length, greaterThan(2));
+    final set0 = before.workingSets[0].weightKg;
+
+    notifier.setSetWeightFrom(0, 1, 42.5); // edit set 1, cascade forward
+
+    final after = container.read(provider).value!.lifts[0];
+    expect(after.anchorKg, before.anchorKg); // anchor untouched
+    expect(after.workingSets[0].weightKg, set0); // earlier set untouched
+    for (final ws in after.workingSets.where((w) => w.index >= 1)) {
+      expect(ws.weightKg, 42.5); // edited set + all following
+    }
+  });
+
+  test('setSetWeightFrom clamps a negative weight to zero', () async {
+    final (db, container) = await _seeded();
+    addTearDown(db.close);
+    addTearDown(container.dispose);
+
+    final provider = activeWorkoutControllerProvider('sl5x5-a');
+    await container.read(provider.future);
+
+    container.read(provider.notifier).setSetWeightFrom(0, 0, -10);
+
+    final after = container.read(provider).value!.lifts[0];
+    expect(after.workingSets[0].weightKg, 0);
+  });
+
+  test('weightsAfterEditingFrom re-derives later sets by scheme', () {
+    ActiveLift lift(List<SetGroupSpec> groups, List<double> weights) =>
+        ActiveLift(
+          exerciseId: 'x',
+          name: 'X',
+          anchorKg: weights.isEmpty ? 0 : weights.last,
+          warmups: const [],
+          workingSets: [
+            for (var i = 0; i < weights.length; i++)
+              ActiveSet(index: i, weightKg: weights[i], targetReps: 5),
+          ],
+          incrementKg: 2.5,
+          deloadAfterFails: 3,
+          deloadPercent: 10,
+          setGroups: groups,
+        );
+
+    // Top set edit recalculates the back-offs (10% under the new top).
+    final topBackoff = lift(
+      const [
+        SetGroupSpec(sets: 1, reps: 5, weightRule: WeightRule.topSet),
+        SetGroupSpec(
+          sets: 3,
+          reps: 5,
+          weightRule: WeightRule.backoff,
+          weightParam: 10,
+        ),
+      ],
+      const [100, 90, 90, 90],
+    );
+    expect(topBackoff.weightsAfterEditingFrom(0, 150), [150, 135, 135, 135]);
+
+    // Straight edit simply carries the weight forward.
+    final straight = lift(
+      const [SetGroupSpec(sets: 3, reps: 5, weightRule: WeightRule.straight)],
+      const [60, 60, 60],
+    );
+    expect(straight.weightsAfterEditingFrom(1, 65), [60, 65, 65]);
+  });
+
   test('logBodyweight persists and shows as the current bodyweight', () async {
     final (db, container) = await _seeded();
     addTearDown(db.close);
@@ -189,5 +269,54 @@ void main() {
       container.read(provider).value!.lifts[0].workingSets.length,
       before - 1,
     );
+  });
+
+  test('changing the working weight keeps a manually-added set and its reps',
+      () async {
+    final (db, container) = await _seeded();
+    addTearDown(db.close);
+    addTearDown(container.dispose);
+
+    final provider = activeWorkoutControllerProvider('sl5x5-a');
+    final state = await container.read(provider.future);
+    final notifier = container.read(provider.notifier);
+    final before = state.lifts[0].workingSets.length;
+
+    notifier
+      ..addSet(0) // extra set at index == before
+      ..logReps(0, before, 5) // log it
+      ..setLiftWeight(0, 80); // then bump the lift's working weight
+
+    final after = container.read(provider).value!.lifts[0];
+    expect(after.workingSets.length, before + 1); // added set survives
+    expect(after.workingSets.last.actualReps, 5); // and its logged reps
+  });
+
+  test('finish saves only the sets the user logged', () async {
+    final (db, container) = await _seeded();
+    addTearDown(db.close);
+    addTearDown(container.dispose);
+
+    final provider = activeWorkoutControllerProvider('sl5x5-a');
+    final state = await container.read(provider.future);
+    final notifier = container.read(provider.notifier);
+
+    // Log only the first lift's sets; leave the other lifts unlogged.
+    for (final ws in state.lifts[0].workingSets) {
+      notifier.logReps(0, ws.index, ws.targetReps);
+    }
+    final loggedCount = container
+        .read(provider)
+        .value!
+        .lifts
+        .expand((l) => l.workingSets)
+        .where((s) => s.logged)
+        .length;
+
+    await notifier.finish();
+
+    final logs = await db.select(db.setLogs).get();
+    expect(logs.length, loggedCount); // unlogged sets are not persisted
+    expect(logs.every((l) => l.actualReps != null), isTrue);
   });
 }

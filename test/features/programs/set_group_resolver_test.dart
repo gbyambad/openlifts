@@ -82,6 +82,123 @@ void main() {
     );
   });
 
+  group('recalcFromEditedSet', () {
+    test('straight: edit carries forward to the later sets, earlier untouched',
+        () {
+      final r = recalcFromEditedSet(
+        groups: const [
+          SetGroupSpec(sets: 3, reps: 5, weightRule: WeightRule.straight),
+        ],
+        currentWeights: const [60, 60, 60],
+        editedIndex: 1,
+        editedWeight: 65,
+      );
+      expect(r, [60, 65, 65]); // set 0 kept
+    });
+
+    test('back-off: editing one back-off set copies to the later back-offs',
+        () {
+      final r = recalcFromEditedSet(
+        groups: const [
+          SetGroupSpec(
+            sets: 3,
+            reps: 5,
+            weightRule: WeightRule.backoff,
+            weightParam: 10,
+          ),
+        ],
+        currentWeights: const [90, 90, 90],
+        editedIndex: 0,
+        editedWeight: 95,
+      );
+      expect(r, [95, 95, 95]);
+    });
+
+    test('top set: editing the top set recalculates the back-offs 10% under',
+        () {
+      final r = recalcFromEditedSet(
+        groups: const [
+          SetGroupSpec(sets: 1, reps: 5, weightRule: WeightRule.topSet),
+          SetGroupSpec(
+            sets: 3,
+            reps: 5,
+            weightRule: WeightRule.backoff,
+            weightParam: 10,
+          ),
+        ],
+        currentWeights: const [100, 90, 90, 90],
+        editedIndex: 0,
+        editedWeight: 150,
+      );
+      // Back-offs re-derive from the new top: 150 * 0.9 = 135.
+      expect(r, [150, 135, 135, 135]);
+    });
+
+    test('top set: editing a back-off leaves the top set alone', () {
+      final r = recalcFromEditedSet(
+        groups: const [
+          SetGroupSpec(sets: 1, reps: 5, weightRule: WeightRule.topSet),
+          SetGroupSpec(
+            sets: 3,
+            reps: 5,
+            weightRule: WeightRule.backoff,
+            weightParam: 10,
+          ),
+        ],
+        currentWeights: const [100, 90, 90, 90],
+        editedIndex: 2, // a back-off set
+        editedWeight: 85,
+      );
+      expect(r, [100, 90, 85, 85]); // top + earlier back-off kept
+    });
+
+    test('ramp: editing a rung recalculates the following rungs by ratio', () {
+      final r = recalcFromEditedSet(
+        groups: const [
+          SetGroupSpec(sets: 5, reps: 5, weightRule: WeightRule.ramp),
+        ],
+        currentWeights: const [50, 62.5, 75, 87.5, 100],
+        editedIndex: 0, // 0.5 * anchor -> new anchor 120
+        editedWeight: 60,
+      );
+      expect(r, [60, 75, 90, 105, 120]);
+    });
+
+    test('sets added beyond the prescribed groups carry the weight forward',
+        () {
+      final r = recalcFromEditedSet(
+        groups: const [
+          SetGroupSpec(sets: 2, reps: 5, weightRule: WeightRule.straight),
+        ],
+        currentWeights: const [60, 60, 60], // one manually-added set
+        editedIndex: 0,
+        editedWeight: 65,
+      );
+      expect(r, [65, 65, 65]);
+    });
+  });
+
+  test('anchorFactors maps each set to its anchor multiplier', () {
+    expect(
+      anchorFactors(const [
+        SetGroupSpec(sets: 1, reps: 5, weightRule: WeightRule.topSet),
+        SetGroupSpec(
+          sets: 2,
+          reps: 5,
+          weightRule: WeightRule.backoff,
+          weightParam: 10,
+        ),
+      ]),
+      [1.0, 0.9, 0.9],
+    );
+    expect(
+      anchorFactors(const [
+        SetGroupSpec(sets: 3, reps: 5, weightRule: WeightRule.ramp),
+      ]),
+      [0.5, 0.75, 1.0],
+    );
+  });
+
   test('Madcow Friday combo resolves each group correctly', () {
     const anchor = 100.0;
     final ramp = resolveSetGroup(

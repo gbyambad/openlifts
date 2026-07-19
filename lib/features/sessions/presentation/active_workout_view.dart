@@ -7,6 +7,8 @@ import 'package:openlifts/core/theme/semantic_colors.dart';
 import 'package:openlifts/core/units/units.dart';
 import 'package:openlifts/features/sessions/application/active_workout_controller.dart';
 import 'package:openlifts/features/workout/domain/plate_math.dart';
+import 'package:openlifts/features/workout/domain/warmup_calculator.dart';
+import 'package:openlifts/shared/widgets/confirm_dialog.dart';
 import 'package:openlifts/shared/widgets/plate_bar.dart';
 
 /// Presentational active-workout UI. Pure (no providers/DB) so it is
@@ -17,6 +19,7 @@ class ActiveWorkoutView extends StatefulWidget {
     required this.onCycleSet,
     required this.onSetWeight,
     required this.onSetWeightAt,
+    required this.onSetWeightFrom,
     required this.onAddSet,
     required this.onRemoveSet,
     required this.onLogBodyweight,
@@ -33,6 +36,11 @@ class ActiveWorkoutView extends StatefulWidget {
   /// lift's anchor or the other sets.
   final void Function(int liftIndex, int setIndex, double weightKg)
       onSetWeightAt;
+
+  /// Set one set's weight and cascade it to every later set — the "recalculate
+  /// the following sets" action for non-straight schemes.
+  final void Function(int liftIndex, int setIndex, double weightKg)
+      onSetWeightFrom;
   final void Function(int liftIndex) onAddSet;
   final void Function(int liftIndex) onRemoveSet;
   final void Function(double weightKg) onLogBodyweight;
@@ -57,45 +65,76 @@ class _ActiveWorkoutViewState extends State<ActiveWorkoutView>
     super.dispose();
   }
 
-  int get _warmupTotal =>
-      widget.state.lifts.fold(0, (n, l) => n + l.warmups.length);
-
   void _toggleWarmup(String key) {
     unawaited(HapticFeedback.selectionClick());
     setState(() {
       if (!_doneWarmups.add(key)) _doneWarmups.remove(key);
     });
-    // Warmups all checked -> move on to the working sets.
-    if (_warmupTotal > 0 &&
-        _doneWarmups.length >= _warmupTotal &&
-        _tabs.index != 0) {
-      _tabs.animateTo(0);
-    }
+    // When the lift just checked off has all its warmups done, move on to the
+    // working sets. Per-lift, not day-wide: later lifts warm up as you reach
+    // them, so gating on every lift's warmups would strand you here.
+    final li = int.parse(key.split('-').first);
+    final warmups = widget.state.lifts[li].warmups;
+    final liftAllDone = warmups.isNotEmpty &&
+        List.generate(warmups.length, (wi) => '$li-$wi')
+            .every(_doneWarmups.contains);
+    if (liftAllDone && _tabs.index != 0) _tabs.animateTo(0);
   }
 
-  bool _laterLiftHasPendingWarmup(int afterLift) {
+  /// Whether the next not-yet-finished lift after [afterLift] still has a
+  /// warmup to check off. Only that lift matters: a next lift with no warmups
+  /// should drop you straight onto its working sets, not an empty Warmup tab.
+  bool _nextLiftNeedsWarmup(int afterLift) {
     for (var li = afterLift + 1; li < widget.state.lifts.length; li++) {
-      for (var wi = 0; wi < widget.state.lifts[li].warmups.length; wi++) {
+      final lift = widget.state.lifts[li];
+      final finished = lift.workingSets.isNotEmpty &&
+          lift.workingSets.every((s) => s.logged);
+      if (finished) continue; // skip lifts already done (e.g. logged early)
+      for (var wi = 0; wi < lift.warmups.length; wi++) {
         if (!_doneWarmups.contains('$li-$wi')) return true;
       }
+      return false; // the next lift to work has no pending warmup
     }
     return false;
+  }
+
+  static bool _sameWarmups(List<WarmupSet> a, List<WarmupSet> b) {
+    if (a.length != b.length) return false;
+    for (var i = 0; i < a.length; i++) {
+      if (a[i].weightKg != b[i].weightKg || a[i].reps != b[i].reps) {
+        return false;
+      }
+    }
+    return true;
   }
 
   @override
   void didUpdateWidget(ActiveWorkoutView oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // When a lift's working sets just became fully logged and a later lift
-    // still needs warming up, nudge over to the Warmup tab.
     final lifts = widget.state.lifts;
     final old = oldWidget.state.lifts;
+
+    // A lift's warmups were recomputed (e.g. a working-weight change reshaped
+    // the ramp): drop that lift's stale check-marks so they don't linger as
+    // "done" against weights the user never warmed up with. Safe to mutate
+    // without setState — a rebuild is already underway.
+    for (var li = 0; li < lifts.length; li++) {
+      final oldWarmups =
+          li < old.length ? old[li].warmups : const <WarmupSet>[];
+      if (!_sameWarmups(oldWarmups, lifts[li].warmups)) {
+        _doneWarmups.removeWhere((k) => k.startsWith('$li-'));
+      }
+    }
+
+    // When a lift's working sets just became fully logged and a later lift
+    // still needs warming up, nudge over to the Warmup tab.
     for (var li = 0; li < lifts.length; li++) {
       final done = lifts[li].workingSets.isNotEmpty &&
           lifts[li].workingSets.every((s) => s.logged);
       final wasDone = li < old.length &&
           old[li].workingSets.isNotEmpty &&
           old[li].workingSets.every((s) => s.logged);
-      if (done && !wasDone && _laterLiftHasPendingWarmup(li)) {
+      if (done && !wasDone && _nextLiftNeedsWarmup(li)) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted && _tabs.index != 1) _tabs.animateTo(1);
         });
@@ -122,9 +161,12 @@ class _ActiveWorkoutViewState extends State<ActiveWorkoutView>
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      state.dayName,
-                      style: Theme.of(context).textTheme.titleLarge,
+                    Flexible(
+                      child: Text(
+                        state.dayName,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
                     ),
                     const Icon(Icons.arrow_drop_down),
                   ],
@@ -143,9 +185,11 @@ class _ActiveWorkoutViewState extends State<ActiveWorkoutView>
         children: [
           _WorkoutTab(
             state: state,
+            tabController: _tabs,
             onCycleSet: widget.onCycleSet,
             onSetWeight: widget.onSetWeight,
             onSetWeightAt: widget.onSetWeightAt,
+            onSetWeightFrom: widget.onSetWeightFrom,
             onAddSet: widget.onAddSet,
             onRemoveSet: widget.onRemoveSet,
             onLogBodyweight: widget.onLogBodyweight,
@@ -164,18 +208,22 @@ class _ActiveWorkoutViewState extends State<ActiveWorkoutView>
 class _WorkoutTab extends StatefulWidget {
   const _WorkoutTab({
     required this.state,
+    required this.tabController,
     required this.onCycleSet,
     required this.onSetWeight,
     required this.onSetWeightAt,
+    required this.onSetWeightFrom,
     required this.onAddSet,
     required this.onRemoveSet,
     required this.onLogBodyweight,
   });
 
   final WorkoutState state;
+  final TabController tabController;
   final void Function(int, int) onCycleSet;
   final void Function(int, double) onSetWeight;
   final void Function(int, int, double) onSetWeightAt;
+  final void Function(int, int, double) onSetWeightFrom;
   final void Function(int) onAddSet;
   final void Function(int) onRemoveSet;
   final void Function(double) onLogBodyweight;
@@ -188,10 +236,74 @@ class _WorkoutTabState extends State<_WorkoutTab> {
   Timer? _timer;
   int _restRemaining = 0;
 
+  final _scroll = ScrollController();
+  // One key per lift card, so the current exercise can be scrolled into view.
+  final _cardKeys = <GlobalKey>[];
+  // Eagerly set from the initial state; a lazy `late` initializer would first
+  // evaluate inside didUpdateWidget (after widget.state already advanced),
+  // hiding the very change we compare against.
+  late int _currentLift;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentLift = _firstUnfinishedLift();
+    widget.tabController.addListener(_onTabChanged);
+  }
+
   @override
   void dispose() {
+    widget.tabController.removeListener(_onTabChanged);
+    _scroll.dispose();
     _timer?.cancel();
     super.dispose();
+  }
+
+  /// The lift the user is on: the first with an unlogged set (last if done).
+  int _firstUnfinishedLift() {
+    final lifts = widget.state.lifts;
+    for (var i = 0; i < lifts.length; i++) {
+      final l = lifts[i];
+      final done =
+          l.workingSets.isNotEmpty && l.workingSets.every((s) => s.logged);
+      if (!done) return i;
+    }
+    return lifts.isEmpty ? 0 : lifts.length - 1;
+  }
+
+  void _onTabChanged() {
+    // Back on the Workout tab (e.g. after warming up the next lift) — bring the
+    // current exercise into view.
+    if (!widget.tabController.indexIsChanging &&
+        widget.tabController.index == 0) {
+      _scrollToCurrentLift();
+    }
+  }
+
+  void _scrollToCurrentLift() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || _currentLift >= _cardKeys.length) return;
+      final ctx = _cardKeys[_currentLift].currentContext;
+      if (ctx == null) return;
+      unawaited(
+        Scrollable.ensureVisible(
+          ctx,
+          alignment: 0.05, // pin near the top, leaving a sliver of the prior
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        ),
+      );
+    });
+  }
+
+  @override
+  void didUpdateWidget(_WorkoutTab oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final current = _firstUnfinishedLift();
+    if (current != _currentLift) {
+      _currentLift = current; // a lift was completed -> focus the next one
+      _scrollToCurrentLift();
+    }
   }
 
   /// Called after a set is logged: (re)start the rest countdown.
@@ -219,34 +331,50 @@ class _WorkoutTabState extends State<_WorkoutTab> {
     final state = widget.state;
     final allSets = [for (final l in state.lifts) ...l.workingSets];
     final doneSets = allSets.where((s) => s.logged).length;
+    if (_cardKeys.length != state.lifts.length) {
+      _cardKeys
+        ..clear()
+        ..addAll([for (var i = 0; i < state.lifts.length; i++) GlobalKey()]);
+    }
     return Column(
       children: [
         _ProgressHeader(done: doneSets, total: allSets.length),
         Expanded(
-          child: ListView(
+          // A SingleChildScrollView (not ListView) so every lift card is laid
+          // out — a lazy ListView drops off-screen cards, leaving their keys
+          // context-less and unreachable by Scrollable.ensureVisible. Workouts
+          // have only a handful of lifts, so eager layout costs nothing.
+          child: SingleChildScrollView(
+            key: const Key('activeWorkoutList'),
+            controller: _scroll,
             padding: const EdgeInsets.fromLTRB(12, 8, 12, 24),
-            children: [
-              for (var li = 0; li < state.lifts.length; li++)
-                _LiftCard(
-                  lift: state.lifts[li],
+            child: Column(
+              children: [
+                for (var li = 0; li < state.lifts.length; li++)
+                  _LiftCard(
+                    key: _cardKeys[li],
+                    lift: state.lifts[li],
+                    unit: state.unit,
+                    isCurrent: li == _currentLift,
+                    onCycle: (si, {required wasLogged}) {
+                      unawaited(HapticFeedback.selectionClick());
+                      widget.onCycleSet(li, si);
+                      if (!wasLogged) _startRest();
+                    },
+                    onEditWeight: () =>
+                        _editWeight(context, li, state.lifts[li]),
+                    onEditSetWeight: (si) =>
+                        _editSetWeight(context, li, state.lifts[li], si),
+                    onAddSet: () => widget.onAddSet(li),
+                    onRemoveSet: () => widget.onRemoveSet(li),
+                  ),
+                _BodyweightRow(
+                  currentKg: state.bodyweightKg,
                   unit: state.unit,
-                  onCycle: (si, {required wasLogged}) {
-                    unawaited(HapticFeedback.selectionClick());
-                    widget.onCycleSet(li, si);
-                    if (!wasLogged) _startRest();
-                  },
-                  onEditWeight: () => _editWeight(context, li, state.lifts[li]),
-                  onEditSetWeight: (si) =>
-                      _editSetWeight(context, li, state.lifts[li], si),
-                  onAddSet: () => widget.onAddSet(li),
-                  onRemoveSet: () => widget.onRemoveSet(li),
+                  onTap: () => _logBodyweight(context),
                 ),
-              _BodyweightRow(
-                currentKg: state.bodyweightKg,
-                unit: state.unit,
-                onTap: () => _logBodyweight(context),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
         if (_restRemaining > 0)
@@ -275,48 +403,60 @@ class _WorkoutTabState extends State<_WorkoutTab> {
     int li,
     ActiveLift lift,
     int setIndex,
-  ) {
-    final target = lift.workingSets.firstWhere((ws) => ws.index == setIndex);
-    return showWeightEditor(
+  ) async {
+    final before =
+        lift.workingSets.firstWhere((ws) => ws.index == setIndex).weightKg;
+    await showWeightEditor(
       context,
       title: '${lift.name} — set ${setIndex + 1} weight',
-      initialKg: target.weightKg,
+      initialKg: before,
       unit: widget.state.unit,
       barKg: widget.state.barWeightKg,
       onChanged: (kg) => widget.onSetWeightAt(li, setIndex, kg),
     );
+    if (!context.mounted) return;
+
+    // Read the committed weight back from the now-updated state, then offer to
+    // carry the change into the later sets (StrongLifts keeps earlier ones).
+    final updated = widget.state.lifts[li];
+    final now =
+        updated.workingSets.firstWhere((ws) => ws.index == setIndex).weightKg;
+    if (now == before) return; // nothing changed
+
+    // Which later sets a recalc would actually move (straight/back-off just
+    // copy the weight; a top-set or ramp edit re-derives them proportionally).
+    final recalced = updated.weightsAfterEditingFrom(setIndex, now);
+    final changedFollowing = [
+      for (final ws in updated.workingSets)
+        if (ws.index > setIndex &&
+            ws.index < recalced.length &&
+            recalced[ws.index] != ws.weightKg)
+          ws.index,
+    ];
+    if (changedFollowing.isEmpty) return; // no later set moves
+
+    final unit = widget.state.unit;
+    final isCopy = changedFollowing.every((i) => recalced[i] == now);
+    final cascade = await showConfirmDialog(
+      context,
+      title: isCopy
+          ? 'Update the following sets?'
+          : 'Recalculate the following sets?',
+      message: isCopy
+          ? 'Set every set after this one to ${weightLabel(now, unit)} too?'
+          : 'Recalculate the sets after this one from '
+              '${weightLabel(now, unit)}, keeping their back-off/ramp pattern?',
+      cancelLabel: 'Only this set',
+      confirmLabel: isCopy ? 'Update following' : 'Recalculate',
+    );
+    if (cascade ?? false) widget.onSetWeightFrom(li, setIndex, now);
   }
 
   Future<void> _logBodyweight(BuildContext context) async {
-    final controller = TextEditingController();
-    double? value;
-    try {
-      value = await showDialog<double>(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Log body weight'),
-          content: TextField(
-            controller: controller,
-            autofocus: true,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: InputDecoration(suffixText: widget.state.unit.name),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
-            ),
-            FilledButton(
-              onPressed: () =>
-                  Navigator.pop(context, double.tryParse(controller.text)),
-              child: const Text('Save'),
-            ),
-          ],
-        ),
-      );
-    } finally {
-      controller.dispose();
-    }
+    final value = await showDialog<double>(
+      context: context,
+      builder: (_) => _BodyweightDialog(unit: widget.state.unit),
+    );
     if (value == null) return;
     // Stored canonical in kg.
     widget.onLogBodyweight(
@@ -434,19 +574,84 @@ class _RestBar extends StatelessWidget {
   }
 }
 
+/// Body-weight entry dialog. Owns its [TextEditingController] so it lives
+/// through the dialog's close animation — disposing it in the caller right
+/// after `showDialog` returned tore it down mid-animation and threw
+/// "used after disposed". Save stays disabled until the input is a valid
+/// positive number, so it can't silently no-op.
+class _BodyweightDialog extends StatefulWidget {
+  const _BodyweightDialog({required this.unit});
+
+  final Unit unit;
+
+  @override
+  State<_BodyweightDialog> createState() => _BodyweightDialogState();
+}
+
+class _BodyweightDialogState extends State<_BodyweightDialog> {
+  final _controller = TextEditingController();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  double? get _parsed {
+    final v = double.tryParse(_controller.text.trim());
+    return (v != null && v > 0) ? v : null;
+  }
+
+  void _save() {
+    final v = _parsed;
+    if (v != null) Navigator.pop(context, v);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Log body weight'),
+      content: TextField(
+        controller: _controller,
+        autofocus: true,
+        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+        decoration: InputDecoration(suffixText: widget.unit.name),
+        onChanged: (_) => setState(() {}), // re-evaluate the Save button
+        onSubmitted: (_) => _save(),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancel'),
+        ),
+        FilledButton(
+          onPressed: _parsed == null ? null : _save,
+          child: const Text('Save'),
+        ),
+      ],
+    );
+  }
+}
+
 class _LiftCard extends StatelessWidget {
   const _LiftCard({
     required this.lift,
     required this.unit,
+    required this.isCurrent,
     required this.onCycle,
     required this.onEditWeight,
     required this.onEditSetWeight,
     required this.onAddSet,
     required this.onRemoveSet,
+    super.key,
   });
 
   final ActiveLift lift;
   final Unit unit;
+
+  /// Whether this is the lift the user is on — only it shows the pulsing cursor
+  /// on its next set, so there's a single "do this now" marker per workout.
+  final bool isCurrent;
   final void Function(int setIndex, {required bool wasLogged}) onCycle;
   final VoidCallback onEditWeight;
   final void Function(int setIndex) onEditSetWeight;
@@ -482,28 +687,60 @@ class _LiftCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            InkWell(
-              onTap: onEditWeight,
-              borderRadius: BorderRadius.circular(8),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        if (allDone) ...[
-                          Icon(
-                            Icons.check_circle,
-                            size: 18,
-                            color: allHit ? semantic.success : semantic.failure,
+            // Two separate tap targets: the name (+ info icon) opens the
+            // how-to sheet; the weight (+ chevron) opens the weight editor.
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Flexible(
+                  child: InkWell(
+                    onTap: () => _showExerciseInfo(context, lift),
+                    borderRadius: BorderRadius.circular(8),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 4,
+                        horizontal: 4,
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (allDone) ...[
+                            Icon(
+                              Icons.check_circle,
+                              size: 18,
+                              color:
+                                  allHit ? semantic.success : semantic.failure,
+                            ),
+                            const SizedBox(width: 6),
+                          ],
+                          Flexible(
+                            child: Text(
+                              lift.name,
+                              overflow: TextOverflow.ellipsis,
+                              style: theme.textTheme.titleMedium,
+                            ),
                           ),
-                          const SizedBox(width: 6),
+                          const SizedBox(width: 5),
+                          Icon(
+                            Icons.info_outline,
+                            size: 17,
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
                         ],
-                        Text(lift.name, style: theme.textTheme.titleMedium),
-                      ],
+                      ),
                     ),
-                    Row(
+                  ),
+                ),
+                InkWell(
+                  onTap: onEditWeight,
+                  borderRadius: BorderRadius.circular(8),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 4,
+                      horizontal: 4,
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
                           topLabel,
@@ -516,9 +753,9 @@ class _LiftCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                  ],
+                  ),
                 ),
-              ),
+              ],
             ),
             const SizedBox(height: 10),
             Wrap(
@@ -528,9 +765,13 @@ class _LiftCard extends StatelessWidget {
               children: [
                 for (final ws in lift.workingSets)
                   _SetCell(
+                    // Keyed so there's a single testable "do this now" marker.
+                    key: isCurrent && ws.index == nextIndex
+                        ? const Key('cursorSet')
+                        : null,
                     data: ws,
                     unit: unit,
-                    isNext: ws.index == nextIndex,
+                    isCursor: isCurrent && ws.index == nextIndex,
                     onTap: () => onCycle(ws.index, wasLogged: ws.logged),
                     onEditWeight: () => onEditSetWeight(ws.index),
                   ),
@@ -553,20 +794,85 @@ class _LiftCard extends StatelessWidget {
   }
 }
 
+/// Shows an exercise's how-to steps in a bottom sheet, so form cues are one tap
+/// away mid-workout without leaving the session (and losing the rest timer).
+Future<void> _showExerciseInfo(BuildContext context, ActiveLift lift) {
+  return showModalBottomSheet<void>(
+    context: context,
+    showDragHandle: true,
+    isScrollControlled: true,
+    builder: (context) {
+      final theme = Theme.of(context);
+      return SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(24, 4, 24, 24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(lift.name, style: theme.textTheme.titleLarge),
+              const SizedBox(height: 2),
+              Text(
+                'How to perform',
+                style: theme.textTheme.labelLarge?.copyWith(
+                  color: theme.colorScheme.primary,
+                ),
+              ),
+              const SizedBox(height: 14),
+              if (lift.instructions.isEmpty)
+                Text(
+                  'No instructions for this exercise yet.',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                )
+              else
+                for (var i = 0; i < lift.instructions.length; i++)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '${i + 1}.  ',
+                          style: theme.textTheme.bodyLarge?.copyWith(
+                            color: theme.colorScheme.primary,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        Expanded(
+                          child: Text(
+                            lift.instructions[i],
+                            style: theme.textTheme.bodyLarge,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
+}
+
 class _SetCell extends StatelessWidget {
   const _SetCell({
     required this.data,
     required this.unit,
-    required this.isNext,
+    required this.isCursor,
     required this.onTap,
     required this.onEditWeight,
+    super.key,
   });
 
   final ActiveSet data;
   final Unit unit;
 
-  /// The next set to perform in this lift — ringed so it's obvious what's up.
-  final bool isNext;
+  /// The single "do this now" set across the whole workout — it gently pulses
+  /// (StrongLifts-style) so the next thing to do is obvious as the list moves.
+  final bool isCursor;
   final VoidCallback onTap;
 
   /// Tapping the per-set weight opens the weight editor for just this set.
@@ -581,8 +887,8 @@ class _SetCell extends StatelessWidget {
     final Color? bg;
     final Color? fg;
     if (!data.logged) {
-      // The next set gets a faint brand tint so it stands out from the rest.
-      bg = isNext ? scheme.primary.withValues(alpha: 0.14) : null;
+      // The cursor set gets a faint brand tint so it stands out from the rest.
+      bg = isCursor ? scheme.primary.withValues(alpha: 0.14) : null;
       fg = null;
     } else if (hit) {
       // A completed set uses the brand colour (StrongLifts uses its own).
@@ -595,15 +901,33 @@ class _SetCell extends StatelessWidget {
     }
 
     // A logged set is a solid fill — match the ring to it so no grey outline
-    // shows around a completed/missed circle. The next unlogged set gets the
-    // primary ring; a plain unlogged set gets the neutral outline.
+    // shows around a completed/missed circle. The cursor set gets a thin brand
+    // ring (the pulse does the attention-grabbing); others a neutral outline.
     final Border border;
     if (data.logged) {
       border = Border.all(color: bg!);
-    } else if (isNext) {
-      border = Border.all(color: scheme.primary, width: 2.5);
+    } else if (isCursor) {
+      border = Border.all(color: scheme.primary, width: 1.5);
     } else {
       border = Border.all(color: scheme.outline);
+    }
+
+    Widget circle = Container(
+      width: 48,
+      height: 48,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: bg,
+        border: border,
+        shape: BoxShape.circle,
+      ),
+      child: Text(
+        '${data.actualReps ?? data.targetReps}',
+        style: TextStyle(color: fg, fontWeight: FontWeight.w600),
+      ),
+    );
+    if (isCursor) {
+      circle = _HeartbeatPulse(color: scheme.primary, child: circle);
     }
 
     return Column(
@@ -612,20 +936,7 @@ class _SetCell extends StatelessWidget {
         InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(24),
-          child: Container(
-            width: 48,
-            height: 48,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: bg,
-              border: border,
-              shape: BoxShape.circle,
-            ),
-            child: Text(
-              '${data.actualReps ?? data.targetReps}',
-              style: TextStyle(color: fg, fontWeight: FontWeight.w600),
-            ),
-          ),
+          child: circle,
         ),
         const SizedBox(height: 4),
         InkWell(
@@ -651,6 +962,70 @@ class _SetCell extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// A minimal, repeating "heartbeat" for the active set: a gentle ~4% scale
+/// breath, no glow (the thin ring + faint tint already mark the set). Honours
+/// reduced-motion (`MediaQuery.disableAnimations`) by rendering [child] static.
+///
+/// Dial the feel with [_pulseScale] (breath depth) and the controller duration
+/// (breath speed).
+class _HeartbeatPulse extends StatefulWidget {
+  const _HeartbeatPulse({required this.color, required this.child});
+
+  final Color color;
+  final Widget child;
+
+  static const _pulseScale = 0.04;
+
+  @override
+  State<_HeartbeatPulse> createState() => _HeartbeatPulseState();
+}
+
+class _HeartbeatPulseState extends State<_HeartbeatPulse>
+    with TickerProviderStateMixin {
+  AnimationController? _controller;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final reduceMotion =
+        MediaQuery.maybeOf(context)?.disableAnimations ?? false;
+    if (reduceMotion) {
+      _controller?.dispose();
+      _controller = null;
+    } else if (_controller == null) {
+      final controller = AnimationController(
+        vsync: this,
+        duration: const Duration(milliseconds: 1100),
+      );
+      unawaited(controller.repeat(reverse: true));
+      _controller = controller;
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = _controller;
+    if (controller == null) return widget.child;
+    return AnimatedBuilder(
+      animation: controller,
+      builder: (context, child) {
+        final t = Curves.easeInOut.transform(controller.value);
+        return Transform.scale(
+          scale: 1 + _HeartbeatPulse._pulseScale * t,
+          child: child,
+        );
+      },
+      child: widget.child,
     );
   }
 }

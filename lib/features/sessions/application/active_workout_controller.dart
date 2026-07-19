@@ -1,7 +1,10 @@
 import 'package:openlifts/core/database/tables.dart';
 import 'package:openlifts/core/providers/database_provider.dart';
 import 'package:openlifts/features/bodyweight/application/bodyweight_providers.dart';
+import 'package:openlifts/features/home/application/today_providers.dart';
+import 'package:openlifts/features/home/application/welcome_back.dart';
 import 'package:openlifts/features/programs/application/program_providers.dart';
+import 'package:openlifts/features/programs/application/program_weights.dart';
 import 'package:openlifts/features/programs/domain/set_group_resolver.dart';
 import 'package:openlifts/features/progression/application/progression_providers.dart';
 import 'package:openlifts/features/progression/domain/default_anchor.dart';
@@ -50,6 +53,7 @@ class ActiveLift {
     required this.deloadPercent,
     this.setGroups = const [],
     this.startsLoaded = false,
+    this.instructions = const [],
   });
 
   final String exerciseId;
@@ -61,10 +65,23 @@ class ActiveLift {
   final int deloadAfterFails;
   final double deloadPercent;
 
+  /// The exercise's how-to steps, shown in the mid-workout info sheet.
+  final List<String> instructions;
+
   /// The prescription's set-group specs, kept so a mid-workout weight change
   /// can re-resolve every set from the new anchor.
   final List<SetGroupSpec> setGroups;
   final bool startsLoaded;
+
+  /// Working-set weights after set [setIndex] is changed to [weightKg]: earlier
+  /// sets kept, later sets re-derived per scheme. See [recalcFromEditedSet].
+  List<double> weightsAfterEditingFrom(int setIndex, double weightKg) =>
+      recalcFromEditedSet(
+        groups: setGroups,
+        currentWeights: [for (final ws in workingSets) ws.weightKg],
+        editedIndex: setIndex,
+        editedWeight: weightKg,
+      );
 
   ActiveLift copyWith({
     double? anchorKg,
@@ -82,6 +99,7 @@ class ActiveLift {
         deloadPercent: deloadPercent,
         setGroups: setGroups,
         startsLoaded: startsLoaded,
+        instructions: instructions,
       );
 }
 
@@ -174,6 +192,7 @@ class ActiveWorkoutController extends _$ActiveWorkoutController {
           deloadPercent: ex.deloadPercent,
           setGroups: specs,
           startsLoaded: ex.startsLoaded,
+          instructions: ex.instructions,
         ),
       );
     }
@@ -292,22 +311,28 @@ class ActiveWorkoutController extends _$ActiveWorkoutController {
     if (s == null) return;
     final lift = s.lifts[liftIndex];
     final anchor = anchorKg < 0 ? 0.0 : anchorKg;
-    final specs = lift.setGroups.isEmpty
-        ? [
-            SetGroupSpec(
-              sets: lift.workingSets.length,
-              reps: 5,
-              weightRule: WeightRule.straight,
-            ),
-          ]
-        : lift.setGroups;
+    // Re-derive every current set from the new anchor, preserving the set count
+    // and each set's reps — so user-added sets (and their logged reps) survive
+    // and removed sets don't come back.
+    final weights = resolveWeightsForCount(
+      lift.setGroups,
+      lift.workingSets.length,
+      anchor,
+    );
     _replaceLift(
       liftIndex,
       lift.copyWith(
         anchorKg: anchor,
         warmups: computeWarmups(anchor, startsLoaded: lift.startsLoaded),
-        workingSets:
-            _resolveSets(specs, anchor, keepRepsFrom: lift.workingSets),
+        workingSets: [
+          for (var i = 0; i < lift.workingSets.length; i++)
+            ActiveSet(
+              index: lift.workingSets[i].index,
+              weightKg: weights[i],
+              targetReps: lift.workingSets[i].targetReps,
+              actualReps: lift.workingSets[i].actualReps,
+            ),
+        ],
       ),
     );
   }
@@ -329,6 +354,33 @@ class ActiveWorkoutController extends _$ActiveWorkoutController {
               ActiveSet(
                 index: ws.index,
                 weightKg: weight,
+                targetReps: ws.targetReps,
+                actualReps: ws.actualReps,
+              )
+            else
+              ws,
+        ],
+      ),
+    );
+  }
+
+  /// Recalculate the sets from [setIndex] on after it changes to [weightKg],
+  /// leaving earlier sets and the anchor untouched — via
+  /// [ActiveLift.weightsAfterEditingFrom].
+  void setSetWeightFrom(int liftIndex, int setIndex, double weightKg) {
+    final s = state.value;
+    if (s == null) return;
+    final lift = s.lifts[liftIndex];
+    final recalced = lift.weightsAfterEditingFrom(setIndex, weightKg);
+    _replaceLift(
+      liftIndex,
+      lift.copyWith(
+        workingSets: [
+          for (final ws in lift.workingSets)
+            if (ws.index < recalced.length && ws.index >= setIndex)
+              ActiveSet(
+                index: ws.index,
+                weightKg: recalced[ws.index],
                 targetReps: ws.targetReps,
                 actualReps: ws.actualReps,
               )
@@ -388,6 +440,10 @@ class ActiveWorkoutController extends _$ActiveWorkoutController {
       final sessionId = await sessions.startSession(s.dayId, now);
       for (final lift in s.lifts) {
         for (final ws in lift.workingSets) {
+          // Persist only sets the user actually logged — the finish dialog
+          // promises "only logged sets are saved". (Progression below still
+          // sees the unlogged sets, so a skipped set counts as a miss.)
+          if (!ws.logged) continue;
           await sessions.logSet(
             sessionId: sessionId,
             exerciseId: lift.exerciseId,
@@ -427,5 +483,14 @@ class ActiveWorkoutController extends _$ActiveWorkoutController {
       }
       await sessions.completeSession(sessionId, now);
     });
+
+    // Refresh the snapshot views that read sessions/progression: the Today
+    // rotation advances past this workout and the Weights tab picks up the new
+    // working weights. (History/progress use reactive Drift streams and refresh
+    // themselves.)
+    ref
+      ..invalidate(todayProvider)
+      ..invalidate(programWeightsProvider)
+      ..invalidate(welcomeBackProvider);
   }
 }
