@@ -82,4 +82,33 @@ void main() {
     expect(find.text('Squat (7)'), findsOneWidget);
     expect(find.text('5·5·5 · 60 kg'), findsOneWidget);
   });
+
+  testWidgets('shows an error message when loading exercises fails',
+      (tester) async {
+    final entries = [
+      HistoryEntry(
+        sessionId: 7,
+        date: DateTime(2026, 3, 5),
+        dayName: 'Workout A',
+        setsLogged: 5,
+        topSetKg: 60,
+      ),
+    ];
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: HistoryView(
+            entries: entries,
+            unit: Unit.kg,
+            loadExercises: (_) async => throw Exception('boom'),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Workout A'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining("Couldn't load exercises"), findsOneWidget);
+  });
 }

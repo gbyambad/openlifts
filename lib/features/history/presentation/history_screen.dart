@@ -122,6 +122,12 @@ class _HistoryTileState extends State<_HistoryTile> {
           FutureBuilder<List<SessionExercise>>(
             future: widget.loadExercises(entry.sessionId),
             builder: (context, snapshot) {
+              if (snapshot.hasError) {
+                return const Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Text("Couldn't load exercises."),
+                );
+              }
               final exercises = snapshot.data;
               if (exercises == null) {
                 return const Padding(

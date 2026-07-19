@@ -33,7 +33,11 @@ class SessionExercise {
 
 /// The exercises logged in a completed session, loaded lazily when a history
 /// row is expanded.
-@riverpod
+///
+/// Kept alive: read via `ref.read(...future)` with no listener, so auto-dispose
+/// would tear it down mid-load and hang the row on a spinner. Safe to retain —
+/// completed sessions are immutable.
+@Riverpod(keepAlive: true)
 Future<List<SessionExercise>> sessionExercises(Ref ref, int sessionId) async {
   final logs = await ref.watch(sessionRepositoryProvider).setsFor(sessionId);
   final settings = await ref.watch(settingsRepositoryProvider).get();
