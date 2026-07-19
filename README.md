@@ -6,6 +6,19 @@ A local-first **StrongLifts 5×5** barbell strength tracker, built with Flutter
 > Working in this repo? Read [`AGENTS.md`](AGENTS.md) for the architecture,
 > house patterns, and StrongLifts domain rules.
 
+## Screenshots
+
+<p align="center">
+  <img src="docs/screenshots/today.png" width="23%" alt="Today — the next scheduled workout" />
+  <img src="docs/screenshots/workout.png" width="23%" alt="Active workout with per-set logging" />
+  <img src="docs/screenshots/programs.png" width="23%" alt="Program library" />
+  <img src="docs/screenshots/settings.png" width="23%" alt="Settings" />
+</p>
+<p align="center"><sub>Today &middot; Workout &middot; Programs &middot; Settings</sub></p>
+
+<sub>Captured from the real app on an emulator — see
+[Regenerating screenshots](#regenerating-screenshots).</sub>
+
 ## Stack
 
 - **State:** Riverpod + codegen (`@riverpod`)
@@ -38,6 +51,16 @@ dart format .                # format
 flutter analyze              # lint (must be clean)
 flutter test                 # tests
 dart run build_runner watch  # codegen while developing
+```
+
+## Regenerating screenshots
+
+The README screenshots are captured from the real app running on an emulator
+(authentic rendering). Boot an Android emulator, then from the repo root:
+
+```bash
+tool/screenshots.sh              # first booted emulator (usual case)
+tool/screenshots.sh <device-id>  # from `adb devices`, e.g. emulator-5554
 ```
 
 ## Project layout
