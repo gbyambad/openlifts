@@ -1,0 +1,2 @@
+# Funnel reporters into the two templates instead of a blank page.
+blank_issues_enabled: false
