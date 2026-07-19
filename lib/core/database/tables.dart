@@ -196,6 +196,10 @@ class Settings extends Table {
   TextColumn get themeMode =>
       textEnum<ThemeMode>().withDefault(const Constant('dark'))();
 
+  // When the user last acted on a welcome-back deload prompt (applied or
+  // dismissed) — so the same layoff isn't prompted twice.
+  DateTimeColumn get deloadHandledAt => dateTime().nullable()();
+
   @override
   Set<Column> get primaryKey => {id};
 }

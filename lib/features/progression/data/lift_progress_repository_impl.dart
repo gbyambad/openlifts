@@ -25,6 +25,10 @@ class DriftLiftProgressRepository implements LiftProgressRepository {
   }
 
   @override
+  Future<List<LiftProgress>> getAll() =>
+      _db.select(_db.liftProgressEntries).get();
+
+  @override
   Future<void> upsert({
     required String exerciseId,
     required double workingWeightKg,

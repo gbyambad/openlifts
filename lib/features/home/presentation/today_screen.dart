@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:openlifts/features/home/application/today_providers.dart';
+import 'package:openlifts/features/home/application/welcome_back.dart';
+import 'package:openlifts/features/home/presentation/welcome_back_card.dart';
 import 'package:openlifts/shared/widgets/async_view.dart';
 import 'package:openlifts/shared/widgets/empty_state.dart';
 
@@ -36,20 +38,31 @@ class TodayScreen extends ConsumerWidget {
   }
 }
 
-class _Home extends StatelessWidget {
+class _Home extends ConsumerWidget {
   const _Home({required this.view});
 
   final TodayView view;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final next = view.workouts.first;
+    final welcomeBack = ref.watch(welcomeBackProvider).asData?.value;
     return Column(
       children: [
         Expanded(
           child: ListView(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
             children: [
+              if (welcomeBack != null)
+                WelcomeBackCard(
+                  suggestion: welcomeBack,
+                  onApply: (percent) => ref
+                      .read(welcomeBackControllerProvider.notifier)
+                      .applyDeload(percent),
+                  onDismiss: () => ref
+                      .read(welcomeBackControllerProvider.notifier)
+                      .dismiss(),
+                ),
               Padding(
                 padding: const EdgeInsets.only(left: 4, bottom: 4),
                 child: Text(
@@ -110,27 +123,6 @@ class _WorkoutCard extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  if (workout.isNext) ...[
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 2,
-                      ),
-                      decoration: BoxDecoration(
-                        color: scheme.primary,
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Text(
-                        'NEXT',
-                        style: theme.textTheme.labelSmall?.copyWith(
-                          color: scheme.onPrimary,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                  ],
                   Expanded(
                     child: Text(
                       workout.dayName,

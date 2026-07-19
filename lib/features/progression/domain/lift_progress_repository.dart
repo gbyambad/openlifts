@@ -8,6 +8,9 @@ abstract interface class LiftProgressRepository {
   /// Exercises with no recorded progress are simply absent from the map.
   Future<Map<String, LiftProgress>> getMany(List<String> exerciseIds);
 
+  /// Every recorded lift-progress row (used to deload all lifts at once).
+  Future<List<LiftProgress>> getAll();
+
   Future<void> upsert({
     required String exerciseId,
     required double workingWeightKg,
