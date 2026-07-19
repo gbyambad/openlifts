@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# Fast gate: format + analyze on staged Dart changes. Mirrors CI's first two
+# checks so red never reaches the remote. Skips entirely when no Dart is staged.
+set -euo pipefail
+
+# GUI git clients may not inherit the Homebrew PATH.
+command -v flutter >/dev/null 2>&1 || export PATH="/opt/homebrew/bin:$PATH"
+
+staged_dart=$(git diff --cached --name-only --diff-filter=ACMR -- '*.dart' || true)
+if [ -z "$staged_dart" ]; then
+  exit 0
+fi
+
+echo "pre-commit → dart format (check)"
+# shellcheck disable=SC2086
+if ! dart format --output=none --set-exit-if-changed $staged_dart; then
+  echo "✖ Unformatted Dart files. Fix with:  dart format ." >&2
+  exit 1
+fi
+
+echo "pre-commit → flutter analyze"
+flutter analyze
+
+echo "✓ pre-commit passed"

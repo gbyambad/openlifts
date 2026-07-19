@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" stroke="#FF9500" stroke-width="9" stroke-linejoin="round">
+  <!-- OpenLifts endless-knot mark: two interlaced loops woven into a square -->
+  <rect x="14" y="36" width="72" height="28" rx="14"/>
+  <rect x="36" y="14" width="28" height="72" rx="14"/>
+  <!-- weave casings: horizontal loop passes over the vertical loop at two crossings -->
+  <path d="M28 36 H44" stroke-linecap="butt"/>
+  <path d="M56 64 H72" stroke-linecap="butt"/>
+</svg>

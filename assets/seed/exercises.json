@@ -1,0 +1,839 @@
+[
+  {
+    "id": "squat",
+    "name": "Squat",
+    "equipment": "barbell",
+    "movementPattern": "squat",
+    "incrementKg": 2.5,
+    "startsLoaded": false,
+    "muscles": [
+      {
+        "name": "quads",
+        "primary": true
+      },
+      {
+        "name": "glutes",
+        "primary": true
+      },
+      {
+        "name": "hamstrings",
+        "primary": false
+      },
+      {
+        "name": "core",
+        "primary": false
+      },
+      {
+        "name": "lowerBack",
+        "primary": false
+      }
+    ],
+    "instructions": [
+      "Set the bar on your upper back and brace your core.",
+      "Squat down until your hips drop below your knees.",
+      "Drive back up through mid-foot to standing."
+    ]
+  },
+  {
+    "id": "bench_press",
+    "name": "Bench Press",
+    "equipment": "barbell",
+    "movementPattern": "horizontalPush",
+    "incrementKg": 2.5,
+    "startsLoaded": false,
+    "muscles": [
+      {
+        "name": "chest",
+        "primary": true
+      },
+      {
+        "name": "triceps",
+        "primary": false
+      },
+      {
+        "name": "shoulders",
+        "primary": false
+      }
+    ],
+    "instructions": [
+      "Lie back and grip the bar just outside shoulder width.",
+      "Lower the bar to your mid-chest with control.",
+      "Press back up to a locked-out position."
+    ]
+  },
+  {
+    "id": "barbell_row",
+    "name": "Barbell Row",
+    "equipment": "barbell",
+    "movementPattern": "horizontalPull",
+    "incrementKg": 2.5,
+    "startsLoaded": true,
+    "muscles": [
+      {
+        "name": "upperBack",
+        "primary": true
+      },
+      {
+        "name": "lats",
+        "primary": true
+      },
+      {
+        "name": "biceps",
+        "primary": false
+      }
+    ],
+    "instructions": [
+      "Hinge to about 45 degrees with the bar over mid-foot.",
+      "Pull the bar to your lower chest.",
+      "Lower it under control back to the floor."
+    ]
+  },
+  {
+    "id": "overhead_press",
+    "name": "Overhead Press",
+    "equipment": "barbell",
+    "movementPattern": "verticalPush",
+    "incrementKg": 2.5,
+    "startsLoaded": false,
+    "muscles": [
+      {
+        "name": "shoulders",
+        "primary": true
+      },
+      {
+        "name": "triceps",
+        "primary": false
+      },
+      {
+        "name": "core",
+        "primary": false
+      }
+    ],
+    "instructions": [
+      "Rack the bar on your front delts, grip shoulder-width.",
+      "Press overhead, moving your head back then through.",
+      "Lock out with the bar stacked over mid-foot."
+    ]
+  },
+  {
+    "id": "deadlift",
+    "name": "Deadlift",
+    "equipment": "barbell",
+    "movementPattern": "hinge",
+    "incrementKg": 5.0,
+    "startsLoaded": true,
+    "muscles": [
+      {
+        "name": "hamstrings",
+        "primary": true
+      },
+      {
+        "name": "glutes",
+        "primary": true
+      },
+      {
+        "name": "lowerBack",
+        "primary": true
+      },
+      {
+        "name": "traps",
+        "primary": false
+      },
+      {
+        "name": "forearms",
+        "primary": false
+      }
+    ],
+    "instructions": [
+      "Set the bar over mid-foot, grip just outside your knees.",
+      "Drive the floor away, keeping the bar close to your legs.",
+      "Lock out hips and knees together at the top."
+    ]
+  },
+  {
+    "id": "dips",
+    "name": "Dips",
+    "equipment": "bodyweight",
+    "movementPattern": "verticalPush",
+    "incrementKg": 2.5,
+    "muscles": [
+      {
+        "name": "chest",
+        "primary": true
+      },
+      {
+        "name": "triceps",
+        "primary": true
+      }
+    ],
+    "instructions": [
+      "Position yourself on parallel bars with your arms fully extended and your body straight.",
+      "Lower your body by bending your elbows until your shoulders are below your elbows.",
+      "Push yourself back up to the starting position by straightening your arms.",
+      "Repeat for the desired number of repetitions."
+    ]
+  },
+  {
+    "id": "incline_bench",
+    "name": "Incline Bench Press",
+    "equipment": "barbell",
+    "movementPattern": "horizontalPush",
+    "incrementKg": 2.5,
+    "variationOf": "bench_press",
+    "muscles": [
+      {
+        "name": "chest",
+        "primary": true
+      },
+      {
+        "name": "shoulders",
+        "primary": false
+      }
+    ],
+    "instructions": [
+      "Set up an incline bench at a 45-degree angle.",
+      "Lie down on the bench with your feet flat on the ground.",
+      "Grasp the barbell with an overhand grip, slightly wider than shoulder-width apart.",
+      "Unrack the barbell and lower it slowly towards your chest, keeping your elbows at a 45-degree angle.",
+      "Pause for a moment at the bottom, then push the barbell back up to the starting position.",
+      "Repeat for the desired number of repetitions."
+    ]
+  },
+  {
+    "id": "bench_feet_up",
+    "name": "Bench Press (Feet Up)",
+    "equipment": "barbell",
+    "movementPattern": "horizontalPush",
+    "incrementKg": 2.5,
+    "variationOf": "bench_press",
+    "instructions": [
+      "Lie flat on a bench with your feet flat on the ground and your back pressed against the bench.",
+      "Grasp the barbell with an overhand grip slightly wider than shoulder-width apart.",
+      "Lift the barbell off the rack and hold it directly above your chest with your arms fully extended.",
+      "Lower the barbell slowly towards your chest, keeping your elbows tucked in.",
+      "Pause for a moment when the barbell touches your chest.",
+      "Push the barbell back up to the starting position by extending your arms."
+    ]
+  },
+  {
+    "id": "pause_squat",
+    "name": "Pause Squat",
+    "equipment": "barbell",
+    "movementPattern": "squat",
+    "incrementKg": 2.5,
+    "variationOf": "squat",
+    "instructions": [
+      "Stand with your feet shoulder-width apart, toes slightly turned out.",
+      "Hold the barbell across your upper back, resting it on your traps or rear delts.",
+      "Engage your core and keep your chest up as you begin to lower your body down.",
+      "Bend at the knees and hips, pushing your hips back and down as if sitting into a chair.",
+      "Lower yourself until your thighs are parallel to the ground or slightly below.",
+      "Keep your knees in line with your toes and your weight in your heels."
+    ]
+  },
+  {
+    "id": "pause_bench",
+    "name": "Pause Bench Press",
+    "equipment": "barbell",
+    "movementPattern": "horizontalPush",
+    "incrementKg": 2.5,
+    "variationOf": "bench_press",
+    "instructions": [
+      "Lie flat on a bench with your feet flat on the ground and your back pressed against the bench.",
+      "Grasp the barbell with an overhand grip slightly wider than shoulder-width apart.",
+      "Lift the barbell off the rack and hold it directly above your chest with your arms fully extended.",
+      "Lower the barbell slowly towards your chest, keeping your elbows tucked in.",
+      "Pause for a moment when the barbell touches your chest.",
+      "Push the barbell back up to the starting position by extending your arms."
+    ]
+  },
+  {
+    "id": "pause_deadlift",
+    "name": "Pause Deadlift",
+    "equipment": "barbell",
+    "movementPattern": "hinge",
+    "incrementKg": 5.0,
+    "startsLoaded": true,
+    "variationOf": "deadlift",
+    "instructions": [
+      "Stand with your feet shoulder-width apart and the barbell on the ground in front of you.",
+      "Bend your knees and hinge at the hips to lower your torso and grip the barbell with an overhand grip, hands slightly wider than shoulder-width apart.",
+      "Keep your back straight and chest lifted as you drive through your heels to lift the barbell off the ground, extending your hips and knees.",
+      "As you stand up straight, squeeze your glutes and keep your core engaged.",
+      "Lower the barbell back down to the ground by bending at the hips and knees, keeping your back straight.",
+      "Repeat for the desired number of repetitions."
+    ]
+  },
+  {
+    "id": "db_bench",
+    "name": "Dumbbell Bench Press",
+    "equipment": "dumbbell",
+    "movementPattern": "horizontalPush",
+    "incrementKg": 2.0,
+    "variationOf": "bench_press",
+    "instructions": [
+      "Lie flat on a bench with your feet flat on the ground and your back pressed against the bench.",
+      "Hold a dumbbell in each hand, with your palms facing forward and your arms extended above your chest.",
+      "Lower the dumbbells slowly to the sides of your chest, keeping your elbows at a 90-degree angle.",
+      "Pause for a moment, then push the dumbbells back up to the starting position, fully extending your arms.",
+      "Repeat for the desired number of repetitions."
+    ]
+  },
+  {
+    "id": "db_row",
+    "name": "Dumbbell Row",
+    "equipment": "dumbbell",
+    "movementPattern": "horizontalPull",
+    "incrementKg": 2.0,
+    "variationOf": "barbell_row",
+    "instructions": [
+      "Stand with your feet shoulder-width apart, knees slightly bent, and hold a dumbbell in each hand with your palms facing your body.",
+      "Bend forward at the hips, keeping your back straight and your core engaged.",
+      "Let your arms hang straight down towards the floor, with your elbows slightly bent.",
+      "Pull the dumbbells up towards your chest, squeezing your shoulder blades together.",
+      "Pause for a moment at the top, then slowly lower the dumbbells back down to the starting position.",
+      "Repeat for the desired number of repetitions."
+    ]
+  },
+  {
+    "id": "skullcrusher",
+    "name": "Skullcrusher",
+    "equipment": "barbell",
+    "incrementKg": 2.5,
+    "muscles": [
+      {
+        "name": "triceps",
+        "primary": true
+      }
+    ],
+    "instructions": [
+      "Lie flat on a bench with your feet flat on the ground and your head at the end of the bench.",
+      "Hold the barbell with an overhand grip, hands shoulder-width apart, and extend your arms straight up over your chest.",
+      "Keeping your upper arms stationary, slowly lower the barbell towards your forehead by bending your elbows.",
+      "Pause for a moment when the barbell is just above your forehead, then extend your arms back up to the starting position.",
+      "Repeat for the desired number of repetitions."
+    ]
+  },
+  {
+    "id": "barbell_curl",
+    "name": "Barbell Curl",
+    "equipment": "barbell",
+    "incrementKg": 2.5,
+    "muscles": [
+      {
+        "name": "biceps",
+        "primary": true
+      }
+    ],
+    "instructions": [
+      "Stand up straight with your feet shoulder-width apart and hold a barbell with an underhand grip, palms facing forward.",
+      "Keep your elbows close to your torso and exhale as you curl the weights while contracting your biceps.",
+      "Continue to raise the bar until your biceps are fully contracted and the bar is at shoulder level.",
+      "Hold the contracted position for a brief pause as you squeeze your biceps.",
+      "Inhale as you slowly begin to lower the bar back to the starting position.",
+      "Repeat for the desired number of repetitions."
+    ]
+  },
+  {
+    "id": "calf_raise",
+    "name": "Calf Raise",
+    "equipment": "machine",
+    "incrementKg": 5.0,
+    "muscles": [
+      {
+        "name": "calves",
+        "primary": true
+      }
+    ],
+    "instructions": [
+      "Stand with your feet shoulder-width apart and place a barbell across your upper back.",
+      "Raise your heels off the ground as high as possible, using only your toes.",
+      "Pause for a moment at the top, then slowly lower your heels back down to the starting position.",
+      "Repeat for the desired number of repetitions."
+    ]
+  },
+  {
+    "id": "pull_up",
+    "name": "Pull-up",
+    "equipment": "bodyweight",
+    "movementPattern": "verticalPull",
+    "incrementKg": 2.5,
+    "muscles": [
+      {
+        "name": "lats",
+        "primary": true
+      },
+      {
+        "name": "biceps",
+        "primary": false
+      }
+    ],
+    "instructions": [
+      "Hang from a pull-up bar with your palms facing away from you and your arms fully extended.",
+      "Engage your core and squeeze your shoulder blades together.",
+      "Pull your body up towards the bar by bending your elbows and bringing your chest towards the bar.",
+      "Pause at the top of the movement, then slowly lower your body back down to the starting position.",
+      "Repeat for the desired number of repetitions."
+    ]
+  },
+  {
+    "id": "chin_up",
+    "name": "Chin-up",
+    "equipment": "bodyweight",
+    "movementPattern": "verticalPull",
+    "incrementKg": 2.5,
+    "variationOf": "pull_up",
+    "muscles": [
+      {
+        "name": "lats",
+        "primary": true
+      },
+      {
+        "name": "biceps",
+        "primary": true
+      }
+    ],
+    "instructions": [
+      "Hang from a pull-up bar with your palms facing towards you and your hands shoulder-width apart.",
+      "Engage your core and pull your body up towards the bar, leading with your chest.",
+      "Continue pulling until your chin is above the bar.",
+      "Pause for a moment at the top, then slowly lower your body back down to the starting position.",
+      "Repeat for the desired number of repetitions."
+    ]
+  },
+  {
+    "id": "situps",
+    "name": "Situps",
+    "equipment": "bodyweight",
+    "incrementKg": 0,
+    "muscles": [
+      {
+        "name": "core",
+        "primary": true
+      }
+    ],
+    "instructions": [
+      "Lie flat on your back with your knees bent and feet flat on the ground.",
+      "Place your hands behind your head with your elbows pointing outwards.",
+      "Engaging your abs, slowly lift your upper body off the ground, curling forward until your torso is at a 45-degree angle.",
+      "Pause for a moment at the top, then slowly lower your upper body back down to the starting position.",
+      "Repeat for the desired number of repetitions."
+    ]
+  },
+  {
+    "id": "plank",
+    "name": "Plank",
+    "equipment": "bodyweight",
+    "incrementKg": 0,
+    "muscles": [
+      {
+        "name": "core",
+        "primary": true
+      }
+    ],
+    "instructions": [
+      "Set your forearms on the floor with your elbows under your shoulders.",
+      "Extend your legs back and rise onto your toes, forming a straight line head to heels.",
+      "Brace your core and glutes, keeping your hips level with your shoulders.",
+      "Breathe steadily and hold for the prescribed time."
+    ]
+  },
+  {
+    "id": "pallof_press",
+    "name": "Pallof Press",
+    "equipment": "cable",
+    "incrementKg": 2.5,
+    "muscles": [
+      {
+        "name": "core",
+        "primary": true
+      }
+    ],
+    "instructions": [
+      "Attach the band to a sturdy anchor point at waist height.",
+      "Stand perpendicular to the anchor point with your feet shoulder-width apart.",
+      "Grasp the band handle with both hands and step away from the anchor point to create tension in the band.",
+      "Bring your hands to your chest, keeping your elbows bent and close to your body.",
+      "Engage your core and maintain a stable stance.",
+      "Extend your arms straight out in front of you, pushing the band away from your body."
+    ]
+  },
+  {
+    "id": "front_squat",
+    "name": "Front Squat",
+    "equipment": "barbell",
+    "movementPattern": "squat",
+    "incrementKg": 2.5,
+    "variationOf": "squat",
+    "muscles": [
+      {
+        "name": "quads",
+        "primary": true
+      },
+      {
+        "name": "glutes",
+        "primary": true
+      },
+      {
+        "name": "core",
+        "primary": false
+      },
+      {
+        "name": "upperBack",
+        "primary": false
+      }
+    ],
+    "instructions": [
+      "Start by standing with your feet shoulder-width apart, toes slightly turned out.",
+      "Hold the barbell in front of your shoulders, resting it on your collarbone and shoulders.",
+      "Engage your core and keep your chest up as you lower your body down into a squat position, pushing your hips back and bending your knees.",
+      "Lower until your thighs are parallel to the ground, or as low as you can comfortably go.",
+      "Pause for a moment at the bottom, then push through your heels to return to the starting position.",
+      "Repeat for the desired number of repetitions."
+    ]
+  },
+  {
+    "id": "romanian_deadlift",
+    "name": "Romanian Deadlift",
+    "equipment": "barbell",
+    "movementPattern": "hinge",
+    "incrementKg": 2.5,
+    "startsLoaded": true,
+    "variationOf": "deadlift",
+    "muscles": [
+      {
+        "name": "hamstrings",
+        "primary": true
+      },
+      {
+        "name": "glutes",
+        "primary": true
+      },
+      {
+        "name": "lowerBack",
+        "primary": false
+      }
+    ],
+    "instructions": [
+      "Stand with your feet shoulder-width apart and your toes pointing forward.",
+      "Hold the barbell with an overhand grip, hands slightly wider than shoulder-width apart.",
+      "Bend at the hips, keeping your back straight and your knees slightly bent.",
+      "Lower the barbell towards the ground, keeping it close to your body.",
+      "Feel the stretch in your hamstrings as you lower the barbell.",
+      "Once you feel a stretch in your hamstrings, push your hips forward and stand up straight."
+    ]
+  },
+  {
+    "id": "sumo_deadlift",
+    "name": "Sumo Deadlift",
+    "equipment": "barbell",
+    "movementPattern": "hinge",
+    "incrementKg": 5.0,
+    "startsLoaded": true,
+    "variationOf": "deadlift",
+    "muscles": [
+      {
+        "name": "glutes",
+        "primary": true
+      },
+      {
+        "name": "quads",
+        "primary": true
+      },
+      {
+        "name": "hamstrings",
+        "primary": false
+      },
+      {
+        "name": "lowerBack",
+        "primary": false
+      }
+    ],
+    "instructions": [
+      "Stand with your feet wider than shoulder-width apart, toes pointing outwards.",
+      "Place a barbell on the ground in front of you, centered between your feet.",
+      "Bend your knees and lower your hips, keeping your back straight and chest up, to grip the barbell with an overhand grip.",
+      "Engage your core and drive through your heels to lift the barbell off the ground, extending your hips and knees simultaneously.",
+      "As you lift, keep your chest up and back straight, and push your hips forward to fully engage your glutes.",
+      "Pause for a moment at the top, then slowly lower the barbell back down to the starting position, maintaining control throughout the movement."
+    ]
+  },
+  {
+    "id": "close_grip_bench",
+    "name": "Close-Grip Bench Press",
+    "equipment": "barbell",
+    "movementPattern": "horizontalPush",
+    "incrementKg": 2.5,
+    "variationOf": "bench_press",
+    "muscles": [
+      {
+        "name": "triceps",
+        "primary": true
+      },
+      {
+        "name": "chest",
+        "primary": false
+      },
+      {
+        "name": "shoulders",
+        "primary": false
+      }
+    ],
+    "instructions": [
+      "Lie flat on a bench with your feet flat on the ground and your back pressed against the bench.",
+      "Grasp the barbell with a close grip, slightly narrower than shoulder-width apart.",
+      "Unrack the barbell and lower it slowly towards your chest, keeping your elbows close to your body.",
+      "Pause for a moment when the barbell touches your chest.",
+      "Push the barbell back up to the starting position, fully extending your arms.",
+      "Repeat for the desired number of repetitions."
+    ]
+  },
+  {
+    "id": "push_press",
+    "name": "Push Press",
+    "equipment": "barbell",
+    "movementPattern": "verticalPush",
+    "incrementKg": 2.5,
+    "variationOf": "overhead_press",
+    "muscles": [
+      {
+        "name": "shoulders",
+        "primary": true
+      },
+      {
+        "name": "triceps",
+        "primary": false
+      },
+      {
+        "name": "quads",
+        "primary": false
+      }
+    ],
+    "instructions": [
+      "Rack the barbell on your front delts with a shoulder-width grip.",
+      "Dip by bending your knees slightly while keeping your torso upright.",
+      "Explosively drive through your legs and press the bar overhead.",
+      "Lock out with the bar over mid-foot, then lower it back to your shoulders."
+    ]
+  },
+  {
+    "id": "lunge",
+    "name": "Barbell Lunge",
+    "equipment": "barbell",
+    "movementPattern": "squat",
+    "incrementKg": 2.5,
+    "muscles": [
+      {
+        "name": "quads",
+        "primary": true
+      },
+      {
+        "name": "glutes",
+        "primary": true
+      },
+      {
+        "name": "hamstrings",
+        "primary": false
+      }
+    ],
+    "instructions": [
+      "Start by standing with your feet shoulder-width apart and a barbell resting on your upper back.",
+      "Take a step forward with your right foot, keeping your torso upright.",
+      "Lower your body by bending your right knee until your thigh is parallel to the ground.",
+      "Push through your right heel to return to the starting position.",
+      "Repeat with your left leg, alternating legs for the desired number of repetitions."
+    ]
+  },
+  {
+    "id": "leg_press",
+    "name": "Leg Press",
+    "equipment": "machine",
+    "movementPattern": "squat",
+    "incrementKg": 5.0,
+    "muscles": [
+      {
+        "name": "quads",
+        "primary": true
+      },
+      {
+        "name": "glutes",
+        "primary": true
+      },
+      {
+        "name": "hamstrings",
+        "primary": false
+      }
+    ],
+    "instructions": [
+      "Sit in the leg press with your feet shoulder-width on the platform.",
+      "Release the safeties and lower the platform by bending your knees toward your chest.",
+      "Stop around 90 degrees, keeping your lower back flat against the pad.",
+      "Drive through mid-foot to extend your legs without locking your knees."
+    ]
+  },
+  {
+    "id": "lateral_raise",
+    "name": "Lateral Raise",
+    "equipment": "dumbbell",
+    "incrementKg": 2.0,
+    "muscles": [
+      {
+        "name": "shoulders",
+        "primary": true
+      }
+    ],
+    "instructions": [
+      "Stand with your feet shoulder-width apart and hold a dumbbell in each hand, palms facing your body.",
+      "Keep your back straight and engage your core.",
+      "Raise your arms out to the sides until they are parallel to the floor, keeping a slight bend in your elbows.",
+      "Pause for a moment at the top, then slowly lower your arms back down to the starting position.",
+      "Repeat for the desired number of repetitions."
+    ]
+  },
+  {
+    "id": "triceps_pushdown",
+    "name": "Triceps Pushdown",
+    "equipment": "cable",
+    "incrementKg": 2.5,
+    "muscles": [
+      {
+        "name": "triceps",
+        "primary": true
+      }
+    ],
+    "instructions": [
+      "Attach a straight bar to a high pulley cable machine.",
+      "Stand facing the machine with your feet shoulder-width apart and a slight bend in your knees.",
+      "Grasp the bar with an overhand grip, hands shoulder-width apart.",
+      "Keep your elbows close to your sides and your upper arms stationary.",
+      "Exhale and push the bar down until your elbows are fully extended.",
+      "Pause for a moment, then inhale and slowly return the bar to the starting position."
+    ]
+  },
+  {
+    "id": "hammer_curl",
+    "name": "Hammer Curl",
+    "equipment": "dumbbell",
+    "incrementKg": 2.0,
+    "muscles": [
+      {
+        "name": "biceps",
+        "primary": true
+      },
+      {
+        "name": "forearms",
+        "primary": false
+      }
+    ],
+    "instructions": [
+      "Stand up straight with a dumbbell in each hand, palms facing your torso.",
+      "Keep your elbows close to your torso and rotate the palms of your hands until they are facing forward.",
+      "This will be your starting position.",
+      "Now, keeping the upper arms stationary, exhale and curl the weights while contracting your biceps.",
+      "Continue to raise the weights until your biceps are fully contracted and the dumbbells are at shoulder level.",
+      "Hold the contracted position for a brief pause as you squeeze your biceps."
+    ]
+  },
+  {
+    "id": "hanging_leg_raise",
+    "name": "Hanging Leg Raise",
+    "equipment": "bodyweight",
+    "incrementKg": 0,
+    "muscles": [
+      {
+        "name": "core",
+        "primary": true
+      }
+    ],
+    "instructions": [
+      "Hang from a pull-up bar with your arms fully extended and your palms facing away from you.",
+      "Engage your core and lift your legs up in front of you, keeping them straight.",
+      "Continue lifting until your legs are parallel to the ground or as high as you can comfortably go.",
+      "Pause for a moment at the top, then slowly lower your legs back down to the starting position.",
+      "Repeat for the desired number of repetitions."
+    ]
+  },
+  {
+    "id": "lat_pulldown",
+    "name": "Lat Pulldown",
+    "equipment": "cable",
+    "movementPattern": "verticalPull",
+    "incrementKg": 2.5,
+    "muscles": [
+      {
+        "name": "lats",
+        "primary": true
+      },
+      {
+        "name": "biceps",
+        "primary": false
+      }
+    ],
+    "instructions": [
+      "Sit on the lat pulldown machine with your knees positioned under the pads.",
+      "Grasp the cable bar with an overhand grip, slightly wider than shoulder-width apart.",
+      "Lean back slightly and keep your chest up, maintaining a slight arch in your lower back.",
+      "Pull the bar down towards your upper chest, squeezing your shoulder blades together.",
+      "Pause for a moment at the bottom of the movement, then slowly release the bar back to the starting position.",
+      "Repeat for the desired number of repetitions."
+    ]
+  },
+  {
+    "id": "seated_cable_row",
+    "name": "Seated Cable Row",
+    "equipment": "cable",
+    "movementPattern": "horizontalPull",
+    "incrementKg": 2.5,
+    "muscles": [
+      {
+        "name": "upperBack",
+        "primary": true
+      },
+      {
+        "name": "lats",
+        "primary": true
+      },
+      {
+        "name": "biceps",
+        "primary": false
+      }
+    ],
+    "instructions": [
+      "Sit on the machine with your feet flat on the footrests and your knees slightly bent.",
+      "Grasp the handles with an overhand grip, palms facing down.",
+      "Keep your back straight and lean slightly forward, maintaining a slight bend in your elbows.",
+      "Pull the handles towards your body, squeezing your shoulder blades together.",
+      "Pause for a moment at the peak of the movement, then slowly release the handles back to the starting position.",
+      "Repeat for the desired number of repetitions."
+    ]
+  },
+  {
+    "id": "good_morning",
+    "name": "Good Morning",
+    "equipment": "barbell",
+    "movementPattern": "hinge",
+    "incrementKg": 2.5,
+    "startsLoaded": true,
+    "muscles": [
+      {
+        "name": "hamstrings",
+        "primary": true
+      },
+      {
+        "name": "lowerBack",
+        "primary": true
+      },
+      {
+        "name": "glutes",
+        "primary": false
+      }
+    ],
+    "instructions": [
+      "Start by standing with your feet shoulder-width apart and the barbell resting on your upper back.",
+      "Keeping your back straight and your core engaged, hinge forward at the hips, pushing your buttocks back as if you were trying to touch the wall behind you with your glutes.",
+      "Lower your torso until it is parallel to the ground, feeling a stretch in your hamstrings.",
+      "Pause for a moment, then return to the starting position by squeezing your glutes and pushing your hips forward.",
+      "Repeat for the desired number of repetitions."
+    ]
+  }
+]

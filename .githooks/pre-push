@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# Heavier gate, run far less often than commits: the test suite.
+set -euo pipefail
+
+command -v flutter >/dev/null 2>&1 || export PATH="/opt/homebrew/bin:$PATH"
+
+echo "pre-push → flutter test"
+flutter test
+
+echo "✓ pre-push passed"

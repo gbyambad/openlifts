@@ -1,0 +1,22 @@
+# Strict, agent-friendly lint baseline for OpenLifts.
+# House rule: `flutter analyze` must pass clean before any commit.
+include: package:very_good_analysis/analysis_options.yaml
+
+analyzer:
+  # NOTE: riverpod_lint/custom_lint were dropped — drift_dev pins an analyzer
+  # version incompatible with custom_lint >=0.8.1. very_good_analysis covers lint.
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+    - "**/*.gr.dart"
+  errors:
+    # Codegen part-directives are expected before build_runner runs.
+    todo: ignore
+
+linter:
+  rules:
+    # Add or relax project-specific rules here as conventions settle.
+    public_member_api_docs: false
+    # We group pubspec deps semantically (state / nav / codegen / lint / test)
+    # with comments rather than one flat alphabetical list.
+    sort_pub_dependencies: false

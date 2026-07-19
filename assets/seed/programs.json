@@ -1,0 +1,1162 @@
+[
+  {
+    "id": "stronglifts-5x5",
+    "name": "StrongLifts 5x5",
+    "isBuiltIn": true,
+    "description": "The classic linear-progression 5x5 program.",
+    "progressionStyle": "linear",
+    "scheduleMode": "timesPerWeek",
+    "timesPerWeek": 3,
+    "days": [
+      {
+        "id": "sl5x5-a",
+        "name": "Workout A",
+        "orderIndex": 0,
+        "prescriptions": [
+          {
+            "exerciseId": "squat",
+            "orderIndex": 0,
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 5,
+                "reps": 5,
+                "weightRule": "straight"
+              }
+            ]
+          },
+          {
+            "exerciseId": "bench_press",
+            "orderIndex": 1,
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 5,
+                "reps": 5,
+                "weightRule": "straight"
+              }
+            ]
+          },
+          {
+            "exerciseId": "barbell_row",
+            "orderIndex": 2,
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 5,
+                "reps": 5,
+                "weightRule": "straight"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "sl5x5-b",
+        "name": "Workout B",
+        "orderIndex": 1,
+        "prescriptions": [
+          {
+            "exerciseId": "squat",
+            "orderIndex": 0,
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 5,
+                "reps": 5,
+                "weightRule": "straight"
+              }
+            ]
+          },
+          {
+            "exerciseId": "overhead_press",
+            "orderIndex": 1,
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 5,
+                "reps": 5,
+                "weightRule": "straight"
+              }
+            ]
+          },
+          {
+            "exerciseId": "deadlift",
+            "orderIndex": 2,
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 1,
+                "reps": 5,
+                "weightRule": "straight"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "Strength & Size",
+      "Beginner"
+    ]
+  },
+  {
+    "id": "stronglifts-5x5-lite",
+    "name": "StrongLifts 5x5 Lite",
+    "isBuiltIn": true,
+    "description": "Same lifts, cut to 2 sets each for lower volume.",
+    "progressionStyle": "linear",
+    "scheduleMode": "timesPerWeek",
+    "timesPerWeek": 3,
+    "days": [
+      {
+        "id": "lite-a",
+        "name": "Workout A",
+        "orderIndex": 0,
+        "prescriptions": [
+          {
+            "exerciseId": "squat",
+            "orderIndex": 0,
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 2,
+                "reps": 5,
+                "weightRule": "straight"
+              }
+            ]
+          },
+          {
+            "exerciseId": "bench_press",
+            "orderIndex": 1,
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 2,
+                "reps": 5,
+                "weightRule": "straight"
+              }
+            ]
+          },
+          {
+            "exerciseId": "barbell_row",
+            "orderIndex": 2,
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 2,
+                "reps": 5,
+                "weightRule": "straight"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "lite-b",
+        "name": "Workout B",
+        "orderIndex": 1,
+        "prescriptions": [
+          {
+            "exerciseId": "squat",
+            "orderIndex": 0,
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 2,
+                "reps": 5,
+                "weightRule": "straight"
+              }
+            ]
+          },
+          {
+            "exerciseId": "overhead_press",
+            "orderIndex": 1,
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 2,
+                "reps": 5,
+                "weightRule": "straight"
+              }
+            ]
+          },
+          {
+            "exerciseId": "deadlift",
+            "orderIndex": 2,
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 2,
+                "reps": 5,
+                "weightRule": "straight"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "Limited Time",
+      "Recovery",
+      "Beginner",
+      "Intermediate"
+    ]
+  },
+  {
+    "id": "stronglifts-5x5-mini",
+    "name": "StrongLifts 5x5 Mini",
+    "isBuiltIn": true,
+    "description": "Two lifts per session for a minimalist schedule.",
+    "progressionStyle": "linear",
+    "scheduleMode": "timesPerWeek",
+    "timesPerWeek": 3,
+    "days": [
+      {
+        "id": "mini-a",
+        "name": "Workout A",
+        "orderIndex": 0,
+        "prescriptions": [
+          {
+            "exerciseId": "squat",
+            "orderIndex": 0,
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 2,
+                "reps": 5,
+                "weightRule": "straight"
+              }
+            ]
+          },
+          {
+            "exerciseId": "bench_press",
+            "orderIndex": 1,
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 2,
+                "reps": 5,
+                "weightRule": "straight"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "mini-b",
+        "name": "Workout B",
+        "orderIndex": 1,
+        "prescriptions": [
+          {
+            "exerciseId": "deadlift",
+            "orderIndex": 0,
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 2,
+                "reps": 5,
+                "weightRule": "straight"
+              }
+            ]
+          },
+          {
+            "exerciseId": "overhead_press",
+            "orderIndex": 1,
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 2,
+                "reps": 5,
+                "weightRule": "straight"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "Maintenance",
+      "Beginner",
+      "Intermediate"
+    ]
+  },
+  {
+    "id": "stronglifts-5x5-plus",
+    "name": "StrongLifts 5x5 Plus",
+    "isBuiltIn": true,
+    "description": "A/B full body plus an upper-body accessory day.",
+    "progressionStyle": "linear",
+    "scheduleMode": "timesPerWeek",
+    "timesPerWeek": 3,
+    "days": [
+      {
+        "id": "plus-a",
+        "name": "Workout A",
+        "orderIndex": 0,
+        "prescriptions": [
+          {
+            "exerciseId": "squat",
+            "orderIndex": 0,
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 5,
+                "reps": 5,
+                "weightRule": "straight"
+              }
+            ]
+          },
+          {
+            "exerciseId": "bench_press",
+            "orderIndex": 1,
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 5,
+                "reps": 5,
+                "weightRule": "straight"
+              }
+            ]
+          },
+          {
+            "exerciseId": "barbell_row",
+            "orderIndex": 2,
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 5,
+                "reps": 5,
+                "weightRule": "straight"
+              }
+            ]
+          },
+          {
+            "exerciseId": "situps",
+            "orderIndex": 3,
+            "section": "accessory",
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 3,
+                "reps": 8,
+                "weightRule": "straight"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "plus-b",
+        "name": "Workout B",
+        "orderIndex": 1,
+        "prescriptions": [
+          {
+            "exerciseId": "deadlift",
+            "orderIndex": 0,
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 5,
+                "reps": 5,
+                "weightRule": "straight"
+              }
+            ]
+          },
+          {
+            "exerciseId": "overhead_press",
+            "orderIndex": 1,
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 5,
+                "reps": 5,
+                "weightRule": "straight"
+              }
+            ]
+          },
+          {
+            "exerciseId": "dips",
+            "orderIndex": 2,
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 5,
+                "reps": 5,
+                "weightRule": "straight"
+              }
+            ]
+          },
+          {
+            "exerciseId": "plank",
+            "orderIndex": 3,
+            "section": "accessory",
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 3,
+                "reps": 30,
+                "weightRule": "straight"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "plus-c",
+        "name": "Workout C",
+        "orderIndex": 2,
+        "prescriptions": [
+          {
+            "exerciseId": "incline_bench",
+            "orderIndex": 0,
+            "section": "accessory",
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 3,
+                "reps": 8,
+                "weightRule": "straight"
+              }
+            ]
+          },
+          {
+            "exerciseId": "pull_up",
+            "orderIndex": 1,
+            "section": "accessory",
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 3,
+                "reps": 8,
+                "weightRule": "straight"
+              }
+            ]
+          },
+          {
+            "exerciseId": "db_bench",
+            "orderIndex": 2,
+            "section": "accessory",
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 3,
+                "reps": 8,
+                "weightRule": "straight"
+              }
+            ]
+          },
+          {
+            "exerciseId": "db_row",
+            "orderIndex": 3,
+            "section": "accessory",
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 3,
+                "reps": 8,
+                "weightRule": "straight"
+              }
+            ]
+          },
+          {
+            "exerciseId": "skullcrusher",
+            "orderIndex": 4,
+            "section": "accessory",
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 3,
+                "reps": 8,
+                "weightRule": "straight"
+              }
+            ]
+          },
+          {
+            "exerciseId": "barbell_curl",
+            "orderIndex": 5,
+            "section": "accessory",
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 3,
+                "reps": 8,
+                "weightRule": "straight"
+              }
+            ]
+          },
+          {
+            "exerciseId": "calf_raise",
+            "orderIndex": 6,
+            "section": "accessory",
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 3,
+                "reps": 8,
+                "weightRule": "straight"
+              }
+            ]
+          },
+          {
+            "exerciseId": "pallof_press",
+            "orderIndex": 7,
+            "section": "accessory",
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 3,
+                "reps": 8,
+                "weightRule": "straight"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "Hypertrophy",
+      "Beginner",
+      "Intermediate"
+    ]
+  },
+  {
+    "id": "stronglifts-5x5-ultra",
+    "name": "StrongLifts 5x5 Ultra",
+    "isBuiltIn": true,
+    "description": "A 4-day upper/lower split.",
+    "progressionStyle": "linear",
+    "scheduleMode": "timesPerWeek",
+    "timesPerWeek": 4,
+    "days": [
+      {
+        "id": "ultra-a",
+        "name": "Lower A",
+        "orderIndex": 0,
+        "prescriptions": [
+          {
+            "exerciseId": "squat",
+            "orderIndex": 0,
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 5,
+                "reps": 5,
+                "weightRule": "straight"
+              }
+            ]
+          },
+          {
+            "exerciseId": "deadlift",
+            "orderIndex": 1,
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 1,
+                "reps": 5,
+                "weightRule": "straight"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "ultra-b",
+        "name": "Upper A",
+        "orderIndex": 1,
+        "prescriptions": [
+          {
+            "exerciseId": "bench_press",
+            "orderIndex": 0,
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 5,
+                "reps": 5,
+                "weightRule": "straight"
+              }
+            ]
+          },
+          {
+            "exerciseId": "barbell_row",
+            "orderIndex": 1,
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 5,
+                "reps": 5,
+                "weightRule": "straight"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "ultra-c",
+        "name": "Lower B",
+        "orderIndex": 2,
+        "prescriptions": [
+          {
+            "exerciseId": "deadlift",
+            "orderIndex": 0,
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 5,
+                "reps": 5,
+                "weightRule": "straight"
+              }
+            ]
+          },
+          {
+            "exerciseId": "squat",
+            "orderIndex": 1,
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 1,
+                "reps": 5,
+                "weightRule": "straight"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "ultra-d",
+        "name": "Upper B",
+        "orderIndex": 3,
+        "prescriptions": [
+          {
+            "exerciseId": "overhead_press",
+            "orderIndex": 0,
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 5,
+                "reps": 5,
+                "weightRule": "straight"
+              }
+            ]
+          },
+          {
+            "exerciseId": "bench_press",
+            "orderIndex": 1,
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 5,
+                "reps": 5,
+                "weightRule": "straight"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "Strength & Size",
+      "Beginner",
+      "Intermediate"
+    ]
+  },
+  {
+    "id": "stronglifts-5x5-ultra-max",
+    "name": "StrongLifts 5x5 Ultra Max",
+    "isBuiltIn": true,
+    "description": "A 5-day upper/lower split.",
+    "progressionStyle": "linear",
+    "scheduleMode": "timesPerWeek",
+    "timesPerWeek": 5,
+    "days": [
+      {
+        "id": "umax-a",
+        "name": "Lower A",
+        "orderIndex": 0,
+        "prescriptions": [
+          {
+            "exerciseId": "squat",
+            "orderIndex": 0,
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 5,
+                "reps": 5,
+                "weightRule": "straight"
+              }
+            ]
+          },
+          {
+            "exerciseId": "deadlift",
+            "orderIndex": 1,
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 1,
+                "reps": 5,
+                "weightRule": "straight"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "umax-b",
+        "name": "Upper A",
+        "orderIndex": 1,
+        "prescriptions": [
+          {
+            "exerciseId": "bench_press",
+            "orderIndex": 0,
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 5,
+                "reps": 5,
+                "weightRule": "straight"
+              }
+            ]
+          },
+          {
+            "exerciseId": "barbell_row",
+            "orderIndex": 1,
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 5,
+                "reps": 5,
+                "weightRule": "straight"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "umax-c",
+        "name": "Lower B",
+        "orderIndex": 2,
+        "prescriptions": [
+          {
+            "exerciseId": "deadlift",
+            "orderIndex": 0,
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 5,
+                "reps": 5,
+                "weightRule": "straight"
+              }
+            ]
+          },
+          {
+            "exerciseId": "squat",
+            "orderIndex": 1,
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 1,
+                "reps": 5,
+                "weightRule": "straight"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "umax-d",
+        "name": "Upper B",
+        "orderIndex": 3,
+        "prescriptions": [
+          {
+            "exerciseId": "incline_bench",
+            "orderIndex": 0,
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 5,
+                "reps": 5,
+                "weightRule": "straight"
+              }
+            ]
+          },
+          {
+            "exerciseId": "dips",
+            "orderIndex": 1,
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 5,
+                "reps": 5,
+                "weightRule": "straight"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "umax-e",
+        "name": "Upper C",
+        "orderIndex": 4,
+        "prescriptions": [
+          {
+            "exerciseId": "overhead_press",
+            "orderIndex": 0,
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 5,
+                "reps": 5,
+                "weightRule": "straight"
+              }
+            ]
+          },
+          {
+            "exerciseId": "chin_up",
+            "orderIndex": 1,
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 5,
+                "reps": 5,
+                "weightRule": "straight"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "Strength & Size",
+      "Intermediate",
+      "Advanced"
+    ]
+  },
+  {
+    "id": "stronglifts-5x5-intermediate",
+    "name": "StrongLifts 5x5 Intermediate",
+    "isBuiltIn": true,
+    "description": "A/B/C with a variation day. TODO: refine to top-set + back-off from spreadsheets.",
+    "progressionStyle": "linear",
+    "scheduleMode": "timesPerWeek",
+    "timesPerWeek": 3,
+    "days": [
+      {
+        "id": "int-a",
+        "name": "Workout A",
+        "orderIndex": 0,
+        "prescriptions": [
+          {
+            "exerciseId": "squat",
+            "orderIndex": 0,
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 5,
+                "reps": 5,
+                "weightRule": "straight"
+              }
+            ]
+          },
+          {
+            "exerciseId": "bench_press",
+            "orderIndex": 1,
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 5,
+                "reps": 5,
+                "weightRule": "straight"
+              }
+            ]
+          },
+          {
+            "exerciseId": "barbell_row",
+            "orderIndex": 2,
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 5,
+                "reps": 8,
+                "weightRule": "straight"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "int-b",
+        "name": "Workout B",
+        "orderIndex": 1,
+        "prescriptions": [
+          {
+            "exerciseId": "deadlift",
+            "orderIndex": 0,
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 5,
+                "reps": 5,
+                "weightRule": "straight"
+              }
+            ]
+          },
+          {
+            "exerciseId": "incline_bench",
+            "orderIndex": 1,
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 5,
+                "reps": 8,
+                "weightRule": "straight"
+              }
+            ]
+          },
+          {
+            "exerciseId": "bench_feet_up",
+            "orderIndex": 2,
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 5,
+                "reps": 8,
+                "weightRule": "straight"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "int-c",
+        "name": "Workout C",
+        "orderIndex": 2,
+        "prescriptions": [
+          {
+            "exerciseId": "pause_squat",
+            "orderIndex": 0,
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 5,
+                "reps": 3,
+                "weightRule": "straight"
+              }
+            ]
+          },
+          {
+            "exerciseId": "pause_bench",
+            "orderIndex": 1,
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 5,
+                "reps": 3,
+                "weightRule": "straight"
+              }
+            ]
+          },
+          {
+            "exerciseId": "pause_deadlift",
+            "orderIndex": 2,
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 2,
+                "reps": 3,
+                "weightRule": "straight"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "Strength & Size",
+      "Intermediate"
+    ]
+  },
+  {
+    "id": "madcow-5x5",
+    "name": "Madcow 5x5",
+    "isBuiltIn": true,
+    "description": "Ramping, weekly progression. TODO: exact ramp percentages from spreadsheets.",
+    "progressionStyle": "percentage",
+    "progressionPercent": 2.5,
+    "scheduleMode": "timesPerWeek",
+    "timesPerWeek": 3,
+    "days": [
+      {
+        "id": "madcow-a",
+        "name": "Monday (Medium)",
+        "orderIndex": 0,
+        "prescriptions": [
+          {
+            "exerciseId": "squat",
+            "orderIndex": 0,
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 5,
+                "reps": 5,
+                "weightRule": "ramp"
+              }
+            ]
+          },
+          {
+            "exerciseId": "bench_press",
+            "orderIndex": 1,
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 5,
+                "reps": 5,
+                "weightRule": "ramp"
+              }
+            ]
+          },
+          {
+            "exerciseId": "barbell_row",
+            "orderIndex": 2,
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 5,
+                "reps": 5,
+                "weightRule": "ramp"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "madcow-b",
+        "name": "Wednesday (Light)",
+        "orderIndex": 1,
+        "prescriptions": [
+          {
+            "exerciseId": "squat",
+            "orderIndex": 0,
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 4,
+                "reps": 5,
+                "weightRule": "ramp"
+              }
+            ]
+          },
+          {
+            "exerciseId": "incline_bench",
+            "orderIndex": 1,
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 4,
+                "reps": 5,
+                "weightRule": "ramp"
+              }
+            ]
+          },
+          {
+            "exerciseId": "deadlift",
+            "orderIndex": 2,
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 4,
+                "reps": 5,
+                "weightRule": "ramp"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "madcow-c",
+        "name": "Friday (Heavy)",
+        "orderIndex": 2,
+        "prescriptions": [
+          {
+            "exerciseId": "squat",
+            "orderIndex": 0,
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 4,
+                "reps": 5,
+                "weightRule": "ramp"
+              },
+              {
+                "orderIndex": 1,
+                "sets": 1,
+                "reps": 3,
+                "weightRule": "topSet"
+              },
+              {
+                "orderIndex": 2,
+                "sets": 1,
+                "reps": 8,
+                "weightRule": "backoff",
+                "weightParam": 10
+              }
+            ]
+          },
+          {
+            "exerciseId": "bench_press",
+            "orderIndex": 1,
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 4,
+                "reps": 5,
+                "weightRule": "ramp"
+              },
+              {
+                "orderIndex": 1,
+                "sets": 1,
+                "reps": 3,
+                "weightRule": "topSet"
+              },
+              {
+                "orderIndex": 2,
+                "sets": 1,
+                "reps": 8,
+                "weightRule": "backoff",
+                "weightParam": 10
+              }
+            ]
+          },
+          {
+            "exerciseId": "barbell_row",
+            "orderIndex": 2,
+            "setGroups": [
+              {
+                "orderIndex": 0,
+                "sets": 4,
+                "reps": 5,
+                "weightRule": "ramp"
+              },
+              {
+                "orderIndex": 1,
+                "sets": 1,
+                "reps": 3,
+                "weightRule": "topSet"
+              },
+              {
+                "orderIndex": 2,
+                "sets": 1,
+                "reps": 8,
+                "weightRule": "backoff",
+                "weightParam": 10
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "tags": [
+      "Strength & Size",
+      "Intermediate"
+    ]
+  }
+]

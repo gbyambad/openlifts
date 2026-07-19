@@ -1,0 +1,42 @@
+# Flutter / Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+build/
+.pub-cache/
+.pub/
+coverage/
+doc/api/
+# pubspec.lock IS committed (this is an app, not a library) for reproducible builds.
+
+# Generated code (regenerated via build_runner)
+*.g.dart
+*.freezed.dart
+*.gr.dart
+*.mocks.dart
+
+# IDE / tooling
+.idea/
+.vscode/
+*.iml
+*.log
+
+# Platform build artifacts
+android/.gradle/
+android/app/debug/
+android/app/profile/
+android/app/release/
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/Runner/GeneratedPluginRegistrant.*
+.DS_Store
+
+# Env / secrets
+*.env
+.env*
+
+# Local planning docs (kept out of the repo)
+docs/plans/
