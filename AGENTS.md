@@ -129,6 +129,25 @@ of drift (a common mistake).
 - After adding or changing any `@riverpod`, `@freezed`, or `@JsonSerializable`
   code, **run build_runner** (see commands) or the app won't compile.
 
+## Comments
+
+Comment the **why**, not the **what** — the code already says what it does. A
+good comment captures a non-obvious decision, a constraint, or a gotcha the next
+reader would trip on. Keep them useful and brief.
+
+- **One or two lines.** If a comment needs a paragraph, the code may be the
+  problem. Explain the reasoning, not a play-by-play of each statement.
+- **Say it once.** Don't repeat the same rationale on the caller, the callee,
+  and the helper. Document it where the logic lives; elsewhere, point to it
+  (`// See [recalcFromEditedSet].`).
+- **No narration.** Drop comments that echo the next line (`// increment i`),
+  restate a name, or label obvious structure.
+- **A clear name beats a comment.** Rename the murky thing instead of annotating
+  it.
+- **Doc comments (`///`)** on public APIs state the contract and edge cases
+  (nulls, throws, units) — not the implementation retold in prose.
+- Keep comments true: update or delete them when the code changes.
+
 ## Commands
 
 A `Makefile` wraps the common flows (run `make` to list targets). Codegen
@@ -212,12 +231,14 @@ Conventional Commits: `feat:`, `fix:`, `refactor:`, `test:`, `docs:`,
 - Follow the feature-first layout and put new features under `lib/features/`.
 - Use `@riverpod` codegen for all state.
 - Keep changes local to a feature; reuse via `shared/`/`core/`.
+- Comment the *why*, briefly — see [Comments](#comments).
 - Run format + analyze + test before declaring work done.
 
 **Don't**
 - Introduce a second state-management library or manual providers.
 - Put business logic in widgets or in `app.dart`.
 - Import one feature's internals from another feature.
+- Write comments that narrate the code or repeat a rationale stated elsewhere.
 - Edit generated (`*.g.dart` / `*.freezed.dart`) files.
 - Add a backend, auth, or network sync — this app is local-first by design.
 
