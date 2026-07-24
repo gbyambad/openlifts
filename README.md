@@ -40,10 +40,6 @@ git config core.hooksPath .githooks         # format/analyze/test hooks
 flutter run
 ```
 
-The `android/` and `ios/` folders are committed. Only regenerate them if
-they're missing (e.g. adding a new platform):
-`flutter create --platforms=android,ios --org com.openlifts .`
-
 ## Everyday commands
 
 ```bash

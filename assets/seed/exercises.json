@@ -835,5 +835,61 @@
       "Pause for a moment, then return to the starting position by squeezing your glutes and pushing your hips forward.",
       "Repeat for the desired number of repetitions."
     ]
+  },
+  {
+    "id": "seated_lever_row",
+    "name": "Seated Lever Row",
+    "equipment": "machine",
+    "movementPattern": "horizontalPull",
+    "incrementKg": 5.0,
+    "variationOf": "barbell_row",
+    "muscles": [
+      {
+        "name": "upperBack",
+        "primary": true
+      },
+      {
+        "name": "lats",
+        "primary": true
+      },
+      {
+        "name": "biceps",
+        "primary": false
+      }
+    ],
+    "instructions": [
+      "Sit on the lever row machine with your chest against the pad and feet planted.",
+      "Grasp the handles with a neutral or overhand grip, arms fully extended.",
+      "Pull the handles towards your torso, driving your elbows back and squeezing your shoulder blades together.",
+      "Pause for a moment at the peak of the contraction.",
+      "Slowly return the handles to the starting position under control.",
+      "Repeat for the desired number of repetitions."
+    ]
+  },
+  {
+    "id": "db_overhead_press_seated",
+    "name": "Dumbbell Overhead Press Seated",
+    "equipment": "dumbbell",
+    "movementPattern": "verticalPush",
+    "incrementKg": 2.0,
+    "variationOf": "overhead_press",
+    "muscles": [
+      {
+        "name": "shoulders",
+        "primary": true
+      },
+      {
+        "name": "triceps",
+        "primary": false
+      }
+    ],
+    "instructions": [
+      "Sit on a bench with back support and hold a dumbbell in each hand at shoulder height, palms facing forward.",
+      "Keep your core braced and your back flat against the pad.",
+      "Press the dumbbells overhead until your arms are fully extended.",
+      "Pause briefly at the top with the weights stacked over your shoulders.",
+      "Lower the dumbbells back down to shoulder height under control.",
+      "Repeat for the desired number of repetitions."
+    ]
   }
 ]

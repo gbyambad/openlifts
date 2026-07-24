@@ -74,9 +74,6 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
             onSetWeight: (li, kg) => ref
                 .read(activeWorkoutControllerProvider(dayId).notifier)
                 .setLiftWeight(li, kg),
-            onSetWeightAt: (li, si, kg) => ref
-                .read(activeWorkoutControllerProvider(dayId).notifier)
-                .setSetWeight(li, si, kg),
             onSetWeightFrom: (li, si, kg) => ref
                 .read(activeWorkoutControllerProvider(dayId).notifier)
                 .setSetWeightFrom(li, si, kg),
@@ -86,6 +83,9 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
             onRemoveSet: (li) => ref
                 .read(activeWorkoutControllerProvider(dayId).notifier)
                 .removeSet(li),
+            onDeload: (li) => ref
+                .read(activeWorkoutControllerProvider(dayId).notifier)
+                .deloadLift(li),
             onLogBodyweight: (kg) => ref
                 .read(activeWorkoutControllerProvider(dayId).notifier)
                 .logBodyweight(kg),

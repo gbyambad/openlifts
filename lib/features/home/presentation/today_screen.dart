@@ -19,7 +19,7 @@ class TodayScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Row(
           children: [
-            SvgPicture.asset('assets/brand/openlifts-logo.svg', width: 26),
+            SvgPicture.asset('assets/brand/openlifts-logo.svg', width: 32),
             const SizedBox(width: 8),
             const Text('OpenLifts'),
           ],
