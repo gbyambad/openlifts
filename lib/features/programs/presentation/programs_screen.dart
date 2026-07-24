@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:openlifts/core/theme/app_text_styles.dart';
 import 'package:openlifts/core/units/units.dart';
 import 'package:openlifts/features/programs/application/program_weights.dart';
 import 'package:openlifts/features/programs/application/programs_view.dart';
@@ -32,8 +33,10 @@ class ProgramsScreen extends StatelessWidget {
               child: const Text('Create'),
             ),
           ],
-          bottom: const TabBar(
-            tabs: [Tab(text: 'Programs'), Tab(text: 'Weights')],
+          bottom: TabBar(
+            labelStyle: AppTextStyles.of(context).tabLabel,
+            unselectedLabelStyle: AppTextStyles.of(context).tabLabelMuted,
+            tabs: const [Tab(text: 'Programs'), Tab(text: 'Weights')],
           ),
         ),
         body: const TabBarView(
@@ -238,9 +241,8 @@ class _SectionHeader extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
       child: Text(
         label,
-        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+        style: AppTextStyles.of(context).sectionHeader?.copyWith(
               color: Theme.of(context).colorScheme.onSurfaceVariant,
-              fontWeight: FontWeight.w700,
             ),
       ),
     );
@@ -257,7 +259,10 @@ class _ProgramRow extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return ListTile(
-      title: Text(card.name),
+      title: Text(
+        card.name,
+        style: AppTextStyles.of(context).cardTitle,
+      ),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -381,7 +386,10 @@ class _WeightsTab extends ConsumerWidget {
                   const Divider(height: 1),
                   for (final e in workout.entries)
                     ListTile(
-                      title: Text(e.name),
+                      title: Text(
+                        e.name,
+                        style: AppTextStyles.of(context).cardTitle,
+                      ),
                       subtitle: Text('${e.sets}×${e.reps} · ${e.type.label}'),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:openlifts/core/database/tables.dart';
 import 'package:openlifts/core/theme/semantic_colors.dart';
-import 'package:openlifts/features/programs/domain/set_group_resolver.dart';
 import 'package:openlifts/features/sessions/application/active_workout_controller.dart';
 import 'package:openlifts/features/sessions/presentation/active_workout_view.dart';
 import 'package:openlifts/features/workout/domain/warmup_calculator.dart';
@@ -12,9 +11,11 @@ import 'package:openlifts/features/workout/domain/warmup_calculator.dart';
 Widget _view(
   WorkoutState state, {
   void Function(int, int)? onCycleSet,
-  void Function(int, int, double)? onSetWeightAt,
+  void Function(int, double)? onSetWeight,
   void Function(int, int, double)? onSetWeightFrom,
   void Function(double)? onLogBodyweight,
+  void Function(int)? onAddSet,
+  void Function(int)? onDeload,
 }) {
   return Builder(
     builder: (context) => MediaQuery(
@@ -22,11 +23,11 @@ Widget _view(
       child: ActiveWorkoutView(
         state: state,
         onCycleSet: onCycleSet ?? (_, __) {},
-        onSetWeight: (_, __) {},
-        onSetWeightAt: onSetWeightAt ?? (_, __, ___) {},
+        onSetWeight: onSetWeight ?? (_, __) {},
         onSetWeightFrom: onSetWeightFrom ?? (_, __, ___) {},
-        onAddSet: (_) {},
+        onAddSet: onAddSet ?? (_) {},
         onRemoveSet: (_) {},
+        onDeload: onDeload ?? (_) {},
         onLogBodyweight: onLogBodyweight ?? (_) {},
         onSwitchDay: (_) {},
         onFinish: () {},
@@ -38,87 +39,6 @@ Widget _view(
 /// The active tab index, read straight off the shared TabController.
 int _currentTab(WidgetTester tester) =>
     tester.widget<TabBar>(find.byType(TabBar)).controller!.index;
-
-/// Hosts the view over mutable state, applying `onSetWeightAt` to the matching
-/// set on the fly. This mirrors production (the weight editor commits live via
-/// the controller and the ConsumerWidget rebuilds), which the cascade prompt
-/// relies on: `_editSetWeight` reads the committed weight back off `state`.
-class _CascadeHost extends StatefulWidget {
-  const _CascadeHost({required this.initial, required this.onSetWeightFrom});
-
-  final WorkoutState initial;
-  final void Function(int, int, double) onSetWeightFrom;
-
-  @override
-  State<_CascadeHost> createState() => _CascadeHostState();
-}
-
-class _CascadeHostState extends State<_CascadeHost> {
-  late WorkoutState _state = widget.initial;
-
-  void _applyAt(int li, int si, double kg) {
-    final lift = _state.lifts[li];
-    final sets = [
-      for (final ws in lift.workingSets)
-        if (ws.index == si)
-          ActiveSet(
-            index: ws.index,
-            weightKg: kg,
-            targetReps: ws.targetReps,
-            actualReps: ws.actualReps,
-          )
-        else
-          ws,
-    ];
-    setState(() {
-      _state = _state.copyWith(
-        lifts: [
-          for (var i = 0; i < _state.lifts.length; i++)
-            if (i == li) lift.copyWith(workingSets: sets) else _state.lifts[i],
-        ],
-      );
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: _view(
-        _state,
-        onSetWeightAt: _applyAt,
-        onSetWeightFrom: widget.onSetWeightFrom,
-      ),
-    );
-  }
-}
-
-/// A non-straight lift (back-off scheme) with three sets, so editing one set
-/// can offer to cascade to the following ones.
-WorkoutState _backoffState() => const WorkoutState(
-      dayId: 'a',
-      dayName: 'Workout A',
-      unit: Unit.kg,
-      isLinear: true,
-      lifts: [
-        ActiveLift(
-          exerciseId: 'squat',
-          name: 'Squat',
-          anchorKg: 60,
-          warmups: [],
-          incrementKg: 2.5,
-          deloadAfterFails: 3,
-          deloadPercent: 10,
-          setGroups: [
-            SetGroupSpec(sets: 3, reps: 5, weightRule: WeightRule.backoff),
-          ],
-          workingSets: [
-            ActiveSet(index: 0, weightKg: 60, targetReps: 5),
-            ActiveSet(index: 1, weightKg: 50, targetReps: 5),
-            ActiveSet(index: 2, weightKg: 50, targetReps: 5),
-          ],
-        ),
-      ],
-    );
 
 /// A phone-sized surface so the weight-editor bottom sheet has room.
 void _phoneSurface(WidgetTester tester) {
@@ -172,7 +92,7 @@ void main() {
     ]);
   });
 
-  testWidgets('tapping a set weight opens the per-set editor and edits it',
+  testWidgets('the set row has no inline add/remove/edit controls',
       (tester) async {
     const state = WorkoutState(
       dayId: 'a',
@@ -196,33 +116,129 @@ void main() {
       ],
     );
 
-    // A phone-sized surface so the weight-editor bottom sheet has room.
-    tester.view.physicalSize = const Size(1080, 2400);
-    tester.view.devicePixelRatio = 3;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(MaterialApp(home: _view(state)));
 
-    final edits = <List<num>>[];
+    // The card carries no per-set controls: adding/removing/editing sets all
+    // live in the weights sheet, opened from the header weight.
+    expect(find.byIcon(Icons.add), findsNothing);
+    expect(find.byIcon(Icons.remove), findsNothing);
+    expect(find.byIcon(Icons.edit), findsNothing);
+    expect(find.text('5'), findsNWidgets(2)); // just the two set circles
+  });
+
+  testWidgets('tapping the header weight opens the weights sheet',
+      (tester) async {
+    _phoneSurface(tester);
+    const state = WorkoutState(
+      dayId: 'a',
+      dayName: 'Workout A',
+      unit: Unit.kg,
+      isLinear: true,
+      lifts: [
+        ActiveLift(
+          exerciseId: 'squat',
+          name: 'Squat',
+          anchorKg: 60,
+          warmups: [],
+          incrementKg: 2.5,
+          deloadAfterFails: 3,
+          deloadPercent: 10,
+          workingSets: [
+            ActiveSet(index: 0, weightKg: 60, targetReps: 5),
+            ActiveSet(index: 1, weightKg: 60, targetReps: 5),
+          ],
+        ),
+      ],
+    );
+
+    await tester.pumpWidget(MaterialApp(home: _view(state)));
+
+    // Tap the header weight label (e.g. "5×60 kg") to open the sheet.
+    await tester.tap(find.text('5×60 kg'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Set 1 of 2'), findsOneWidget);
+    expect(find.text('Even out all sets'), findsOneWidget);
+    expect(find.text('Add set'), findsOneWidget);
+  });
+
+  testWidgets('weights-sheet actions reach the right view callbacks',
+      (tester) async {
+    _phoneSurface(tester);
+    const state = WorkoutState(
+      dayId: 'a',
+      dayName: 'Workout A',
+      unit: Unit.kg,
+      isLinear: true,
+      lifts: [
+        ActiveLift(
+          exerciseId: 'squat',
+          name: 'Squat',
+          anchorKg: 60,
+          warmups: [],
+          incrementKg: 2.5,
+          deloadAfterFails: 3,
+          deloadPercent: 10,
+          workingSets: [
+            ActiveSet(index: 0, weightKg: 60, targetReps: 5),
+            ActiveSet(index: 1, weightKg: 60, targetReps: 5),
+          ],
+        ),
+      ],
+    );
+
+    final applied = <List<num>>[];
+    final added = <int>[];
     await tester.pumpWidget(
       MaterialApp(
         home: _view(
           state,
-          onSetWeightAt: (li, si, kg) => edits.add([li, si, kg]),
+          onSetWeight: (li, kg) => applied.add([li, kg]),
+          onAddSet: added.add,
         ),
       ),
     );
 
-    // Tap the first set's weight label to open its editor.
-    await tester.tap(find.text('60').first);
+    await tester.tap(find.text('5×60 kg'));
     await tester.pumpAndSettle();
-    expect(find.text('Squat — set 1 weight'), findsOneWidget);
 
-    // Step it up: 60 -> 62.5, reported for set index 0.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
-    expect(edits, [
-      [0, 0, 62.5],
+    // Even out all sets -> onSetWeight(liftIndex, anchor).
+    await tester.tap(find.text('Even out all sets'));
+    await tester.pumpAndSettle();
+    expect(applied, [
+      [0, 60.0],
     ]);
+
+    // Add set -> onAddSet(liftIndex).
+    await tester.tap(find.text('Add set'));
+    await tester.pumpAndSettle();
+    expect(added, [0]);
+  });
+
+  testWidgets('the body-weight row has no leading scale icon', (tester) async {
+    const state = WorkoutState(
+      dayId: 'a',
+      dayName: 'Workout A',
+      unit: Unit.kg,
+      isLinear: true,
+      lifts: [
+        ActiveLift(
+          exerciseId: 'squat',
+          name: 'Squat',
+          anchorKg: 60,
+          warmups: [],
+          incrementKg: 2.5,
+          deloadAfterFails: 3,
+          deloadPercent: 10,
+          workingSets: [ActiveSet(index: 0, weightKg: 60, targetReps: 5)],
+        ),
+      ],
+    );
+
+    await tester.pumpWidget(MaterialApp(home: _view(state)));
+
+    expect(find.text('Body weight'), findsOneWidget);
+    expect(find.byIcon(Icons.monitor_weight_outlined), findsNothing);
   });
 
   testWidgets('completed set uses the brand colour, a missed set is error-red',
@@ -696,64 +712,6 @@ void main() {
     await tester.pump();
   });
 
-  testWidgets(
-      'editing a set on a non-straight scheme offers to cascade to the '
-      'following sets', (tester) async {
-    _phoneSurface(tester);
-    final cascaded = <List<num>>[];
-
-    await tester.pumpWidget(
-      _CascadeHost(
-        initial: _backoffState(),
-        onSetWeightFrom: (li, si, kg) => cascaded.add([li, si, kg]),
-      ),
-    );
-
-    // Edit set 1 (index 0, weight 60), which has following sets.
-    await tester.tap(find.text('60'));
-    await tester.pumpAndSettle();
-    expect(find.text('Squat — set 1 weight'), findsOneWidget);
-    await tester.tap(find.byIcon(Icons.add)); // 60 -> 62.5
-    await tester.pump();
-    await tester.tap(find.text('Done'));
-    await tester.pumpAndSettle();
-
-    // The cascade prompt appears; confirming fires onSetWeightFrom.
-    expect(find.text('Update the following sets?'), findsOneWidget);
-    await tester.tap(find.text('Update following'));
-    await tester.pumpAndSettle();
-
-    expect(cascaded, [
-      [0, 0, 62.5],
-    ]);
-  });
-
-  testWidgets('"Only this set" leaves the following sets alone',
-      (tester) async {
-    _phoneSurface(tester);
-    final cascaded = <List<num>>[];
-
-    await tester.pumpWidget(
-      _CascadeHost(
-        initial: _backoffState(),
-        onSetWeightFrom: (li, si, kg) => cascaded.add([li, si, kg]),
-      ),
-    );
-
-    await tester.tap(find.text('60'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
-    await tester.tap(find.text('Done'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Update the following sets?'), findsOneWidget);
-    await tester.tap(find.text('Only this set'));
-    await tester.pumpAndSettle();
-
-    expect(cascaded, isEmpty);
-  });
-
   testWidgets('a long day name in the workout selector does not overflow',
       (tester) async {
     _phoneSurface(tester);
@@ -787,120 +745,6 @@ void main() {
     // A RenderFlex overflow surfaces as a thrown FlutterError during layout.
     expect(tester.takeException(), isNull);
     expect(find.byType(PopupMenuButton<String>), findsOneWidget);
-  });
-
-  testWidgets('a straight scheme offers to copy the weight forward',
-      (tester) async {
-    _phoneSurface(tester);
-    final cascaded = <List<num>>[];
-
-    const straight = WorkoutState(
-      dayId: 'a',
-      dayName: 'Workout A',
-      unit: Unit.kg,
-      isLinear: true,
-      lifts: [
-        ActiveLift(
-          exerciseId: 'squat',
-          name: 'Squat',
-          anchorKg: 60,
-          warmups: [],
-          incrementKg: 2.5,
-          deloadAfterFails: 3,
-          deloadPercent: 10,
-          // No setGroups -> a plain straight-weight lift.
-          workingSets: [
-            ActiveSet(index: 0, weightKg: 60, targetReps: 5),
-            ActiveSet(index: 1, weightKg: 60, targetReps: 5),
-          ],
-        ),
-      ],
-    );
-
-    await tester.pumpWidget(
-      _CascadeHost(
-        initial: straight,
-        onSetWeightFrom: (li, si, kg) => cascaded.add([li, si, kg]),
-      ),
-    );
-
-    await tester.tap(find.text('60').first);
-    await tester.pumpAndSettle();
-    await tester.tap(find.byIcon(Icons.add)); // 60 -> 62.5
-    await tester.pump();
-    await tester.tap(find.text('Done'));
-    await tester.pumpAndSettle();
-
-    // Straight sets read as a plain "set them all to X too" copy.
-    expect(find.text('Update the following sets?'), findsOneWidget);
-    await tester.tap(find.text('Update following'));
-    await tester.pumpAndSettle();
-    expect(cascaded, [
-      [0, 0, 62.5],
-    ]);
-  });
-
-  testWidgets('editing the top set recalculates the back-offs proportionally',
-      (tester) async {
-    _phoneSurface(tester);
-    final cascaded = <List<num>>[];
-
-    const topBackoff = WorkoutState(
-      dayId: 'a',
-      dayName: 'Workout A',
-      unit: Unit.kg,
-      isLinear: true,
-      lifts: [
-        ActiveLift(
-          exerciseId: 'squat',
-          name: 'Squat',
-          anchorKg: 100,
-          warmups: [],
-          incrementKg: 2.5,
-          deloadAfterFails: 3,
-          deloadPercent: 10,
-          setGroups: [
-            SetGroupSpec(sets: 1, reps: 5, weightRule: WeightRule.topSet),
-            SetGroupSpec(
-              sets: 3,
-              reps: 5,
-              weightRule: WeightRule.backoff,
-              weightParam: 10,
-            ),
-          ],
-          workingSets: [
-            ActiveSet(index: 0, weightKg: 100, targetReps: 5), // top set
-            ActiveSet(index: 1, weightKg: 90, targetReps: 5), // back-offs
-            ActiveSet(index: 2, weightKg: 90, targetReps: 5),
-            ActiveSet(index: 3, weightKg: 90, targetReps: 5),
-          ],
-        ),
-      ],
-    );
-
-    await tester.pumpWidget(
-      _CascadeHost(
-        initial: topBackoff,
-        onSetWeightFrom: (li, si, kg) => cascaded.add([li, si, kg]),
-      ),
-    );
-
-    // Edit the top set (index 0, weight 100 -> 102.5).
-    await tester.tap(find.text('100'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
-    await tester.tap(find.text('Done'));
-    await tester.pumpAndSettle();
-
-    // Back-offs would change to a *different* weight, so this reads as a
-    // recalculation, not a copy.
-    expect(find.text('Recalculate the following sets?'), findsOneWidget);
-    await tester.tap(find.text('Recalculate'));
-    await tester.pumpAndSettle();
-    expect(cascaded, [
-      [0, 0, 102.5],
-    ]);
   });
 
   group('body-weight dialog', () {
@@ -1087,5 +931,60 @@ void main() {
 
     expect(before, 0); // started at the top
     expect(after, greaterThan(before)); // scrolled down to the current lift
+  });
+
+  testWidgets('opening the Warmup tab scrolls the current exercise into view',
+      (tester) async {
+    tester.view.physicalSize = const Size(1500, 1200);
+    tester.view.devicePixelRatio = 3;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    ActiveLift lift(String id, String name, {required bool done}) => ActiveLift(
+          exerciseId: id,
+          name: name,
+          anchorKg: 100,
+          // A full ramp so each section is tall and the list overflows.
+          warmups: computeWarmups(100, startsLoaded: false),
+          incrementKg: 2.5,
+          deloadAfterFails: 3,
+          deloadPercent: 10,
+          workingSets: [
+            for (var i = 0; i < 5; i++)
+              ActiveSet(
+                index: i,
+                weightKg: 100,
+                targetReps: 5,
+                actualReps: done ? 5 : null,
+              ),
+          ],
+        );
+    const names = ['Squat', 'Bench', 'Row', 'OHP', 'Curl', 'Calf'];
+    // First five done -> the current exercise is the last, well below the fold.
+    final state = WorkoutState(
+      dayId: 'a',
+      dayName: 'A',
+      unit: Unit.kg,
+      isLinear: true,
+      lifts: [
+        for (var i = 0; i < names.length; i++)
+          lift('e$i', names[i], done: i < 5),
+      ],
+    );
+
+    await tester.pumpWidget(MaterialApp(home: _view(state)));
+    await tester.pumpAndSettle();
+
+    ScrollController warmupScroll() => tester
+        .widget<SingleChildScrollView>(
+          find.byKey(const Key('activeWarmupList')),
+        )
+        .controller!;
+
+    await tester.tap(find.text('Warmup'));
+    await tester.pumpAndSettle();
+
+    // Scrolled down to bring the last lift's ramp into view.
+    expect(warmupScroll().offset, greaterThan(0));
   });
 }

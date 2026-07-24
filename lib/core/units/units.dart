@@ -14,6 +14,18 @@ String formatWeight(double value) => value == value.roundToDouble()
     ? value.toStringAsFixed(0)
     : value.toStringAsFixed(1);
 
+/// Formats an exact plate or per-side weight, keeping up to two decimals and
+/// trimming trailing zeros — so the 1.25 kg plate reads "1.25", not "1.3", and
+/// a 6.25 kg side reads "6.25". Unlike [formatWeight] this never rounds away
+/// the quarter, because plate values are exact (not unit-converted) quantities.
+String formatPlate(double value) {
+  var s = value.toStringAsFixed(2);
+  if (s.endsWith('0')) s = s.substring(0, s.length - 1);
+  if (s.endsWith('0')) s = s.substring(0, s.length - 1);
+  if (s.endsWith('.')) s = s.substring(0, s.length - 1);
+  return s;
+}
+
 /// A canonical-kg weight formatted for display in the user's [unit], e.g.
 /// "60 kg" or "132.5 lb".
 String weightLabel(double kg, Unit unit) =>

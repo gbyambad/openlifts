@@ -1,5 +1,6 @@
 import 'package:openlifts/core/database/tables.dart';
 import 'package:openlifts/core/providers/database_provider.dart';
+import 'package:openlifts/core/units/loadable.dart';
 import 'package:openlifts/features/bodyweight/application/bodyweight_providers.dart';
 import 'package:openlifts/features/home/application/today_providers.dart';
 import 'package:openlifts/features/home/application/welcome_back.dart';
@@ -337,44 +338,42 @@ class ActiveWorkoutController extends _$ActiveWorkoutController {
     );
   }
 
-  /// Override a single working set's weight, leaving the other sets and the
-  /// lift's anchor untouched. Lets any set (top set or a back-off) be dialled
-  /// individually mid-workout; the per-set weight carries into the set log.
-  void setSetWeight(int liftIndex, int setIndex, double weightKg) {
+  /// Deload a lift mid-session: drop the anchor by the lift's deload percent,
+  /// snap it to a loadable weight, then re-resolve every set and the warmup
+  /// ramp from it (via [setLiftWeight]).
+  void deloadLift(int liftIndex) {
     final s = state.value;
     if (s == null) return;
     final lift = s.lifts[liftIndex];
-    final weight = weightKg < 0 ? 0.0 : weightKg;
-    _replaceLift(
-      liftIndex,
-      lift.copyWith(
-        workingSets: [
-          for (final ws in lift.workingSets)
-            if (ws.index == setIndex)
-              ActiveSet(
-                index: ws.index,
-                weightKg: weight,
-                targetReps: ws.targetReps,
-                actualReps: ws.actualReps,
-              )
-            else
-              ws,
-        ],
-      ),
-    );
+    final deloaded =
+        roundToLoadableKg(lift.anchorKg * (1 - lift.deloadPercent / 100));
+    setLiftWeight(liftIndex, deloaded);
   }
 
   /// Recalculate the sets from [setIndex] on after it changes to [weightKg],
-  /// leaving earlier sets and the anchor untouched — via
-  /// [ActiveLift.weightsAfterEditingFrom].
+  /// leaving earlier sets untouched — via [ActiveLift.weightsAfterEditingFrom].
+  ///
+  /// The anchor and warmup ramp track the top set, so they only move when the
+  /// edit actually changes it: editing set 0 resyncs both (no more header/warmup
+  /// drift); editing a back-off set leaves the top set — and thus the ramp —
+  /// alone.
   void setSetWeightFrom(int liftIndex, int setIndex, double weightKg) {
     final s = state.value;
     if (s == null) return;
     final lift = s.lifts[liftIndex];
     final recalced = lift.weightsAfterEditingFrom(setIndex, weightKg);
+    // Back out the anchor the new top set implies (top weight / its factor) so
+    // the warmup ramp is rebuilt against the weight the user actually lifts.
+    final factors = anchorFactors(lift.setGroups);
+    final topFactor = factors.isNotEmpty ? factors[0] : 1.0;
+    final anchor = (recalced.isEmpty || topFactor == 0)
+        ? lift.anchorKg
+        : recalced[0] / topFactor;
     _replaceLift(
       liftIndex,
       lift.copyWith(
+        anchorKg: anchor,
+        warmups: computeWarmups(anchor, startsLoaded: lift.startsLoaded),
         workingSets: [
           for (final ws in lift.workingSets)
             if (ws.index < recalced.length && ws.index >= setIndex)

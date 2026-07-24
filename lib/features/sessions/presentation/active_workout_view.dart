@@ -3,13 +3,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:openlifts/core/database/tables.dart';
+import 'package:openlifts/core/theme/app_text_styles.dart';
 import 'package:openlifts/core/theme/semantic_colors.dart';
 import 'package:openlifts/core/units/units.dart';
 import 'package:openlifts/features/sessions/application/active_workout_controller.dart';
+import 'package:openlifts/features/sessions/presentation/weights_sheet.dart';
 import 'package:openlifts/features/workout/domain/plate_math.dart';
 import 'package:openlifts/features/workout/domain/warmup_calculator.dart';
-import 'package:openlifts/shared/widgets/confirm_dialog.dart';
-import 'package:openlifts/shared/widgets/plate_bar.dart';
 
 /// Presentational active-workout UI. Pure (no providers/DB) so it is
 /// widget-testable directly with a fixed [WorkoutState] and callbacks.
@@ -18,10 +18,10 @@ class ActiveWorkoutView extends StatefulWidget {
     required this.state,
     required this.onCycleSet,
     required this.onSetWeight,
-    required this.onSetWeightAt,
     required this.onSetWeightFrom,
     required this.onAddSet,
     required this.onRemoveSet,
+    required this.onDeload,
     required this.onLogBodyweight,
     required this.onSwitchDay,
     required this.onFinish,
@@ -32,17 +32,15 @@ class ActiveWorkoutView extends StatefulWidget {
   final void Function(int liftIndex, int setIndex) onCycleSet;
   final void Function(int liftIndex, double anchorKg) onSetWeight;
 
-  /// Override one set's weight (top set or a back-off) without touching the
-  /// lift's anchor or the other sets.
-  final void Function(int liftIndex, int setIndex, double weightKg)
-      onSetWeightAt;
-
   /// Set one set's weight and cascade it to every later set — the "recalculate
-  /// the following sets" action for non-straight schemes.
+  /// the following sets" action the weights sheet uses per edited row.
   final void Function(int liftIndex, int setIndex, double weightKg)
       onSetWeightFrom;
   final void Function(int liftIndex) onAddSet;
   final void Function(int liftIndex) onRemoveSet;
+
+  /// Deload a lift by its configured percent — the weights sheet's Deload key.
+  final void Function(int liftIndex) onDeload;
   final void Function(double weightKg) onLogBodyweight;
   final void Function(String dayId) onSwitchDay;
   final VoidCallback onFinish;
@@ -173,10 +171,18 @@ class _ActiveWorkoutViewState extends State<ActiveWorkoutView>
                 ),
               ),
         actions: [
-          TextButton(onPressed: widget.onFinish, child: const Text('Finish')),
+          TextButton(
+            onPressed: widget.onFinish,
+            style: TextButton.styleFrom(
+              textStyle: AppTextStyles.of(context).appBarAction,
+            ),
+            child: const Text('Finish'),
+          ),
         ],
         bottom: TabBar(
           controller: _tabs,
+          labelStyle: AppTextStyles.of(context).tabLabel,
+          unselectedLabelStyle: AppTextStyles.of(context).tabLabelMuted,
           tabs: const [Tab(text: 'Workout'), Tab(text: 'Warmup')],
         ),
       ),
@@ -188,14 +194,15 @@ class _ActiveWorkoutViewState extends State<ActiveWorkoutView>
             tabController: _tabs,
             onCycleSet: widget.onCycleSet,
             onSetWeight: widget.onSetWeight,
-            onSetWeightAt: widget.onSetWeightAt,
             onSetWeightFrom: widget.onSetWeightFrom,
             onAddSet: widget.onAddSet,
             onRemoveSet: widget.onRemoveSet,
+            onDeload: widget.onDeload,
             onLogBodyweight: widget.onLogBodyweight,
           ),
           _WarmupTab(
             state: state,
+            tabController: _tabs,
             doneWarmups: _doneWarmups,
             onToggleWarmup: _toggleWarmup,
           ),
@@ -211,10 +218,10 @@ class _WorkoutTab extends StatefulWidget {
     required this.tabController,
     required this.onCycleSet,
     required this.onSetWeight,
-    required this.onSetWeightAt,
     required this.onSetWeightFrom,
     required this.onAddSet,
     required this.onRemoveSet,
+    required this.onDeload,
     required this.onLogBodyweight,
   });
 
@@ -222,10 +229,10 @@ class _WorkoutTab extends StatefulWidget {
   final TabController tabController;
   final void Function(int, int) onCycleSet;
   final void Function(int, double) onSetWeight;
-  final void Function(int, int, double) onSetWeightAt;
   final void Function(int, int, double) onSetWeightFrom;
   final void Function(int) onAddSet;
   final void Function(int) onRemoveSet;
+  final void Function(int) onDeload;
   final void Function(double) onLogBodyweight;
 
   @override
@@ -363,10 +370,6 @@ class _WorkoutTabState extends State<_WorkoutTab> {
                     },
                     onEditWeight: () =>
                         _editWeight(context, li, state.lifts[li]),
-                    onEditSetWeight: (si) =>
-                        _editSetWeight(context, li, state.lifts[li], si),
-                    onAddSet: () => widget.onAddSet(li),
-                    onRemoveSet: () => widget.onRemoveSet(li),
                   ),
                 _BodyweightRow(
                   currentKg: state.bodyweightKg,
@@ -388,68 +391,23 @@ class _WorkoutTabState extends State<_WorkoutTab> {
   }
 
   Future<void> _editWeight(BuildContext context, int li, ActiveLift lift) {
-    return showWeightEditor(
+    return showWeightsSheet(
       context,
-      title: '${lift.name} — working weight',
-      initialKg: lift.anchorKg,
+      liftName: lift.name,
+      sets: [
+        for (final ws in lift.workingSets)
+          (weightKg: ws.weightKg, reps: ws.targetReps),
+      ],
+      setGroups: lift.setGroups,
       unit: widget.state.unit,
       barKg: widget.state.barWeightKg,
-      onChanged: (kg) => widget.onSetWeight(li, kg),
+      deloadPercent: lift.deloadPercent,
+      onRowWeight: (si, kg) => widget.onSetWeightFrom(li, si, kg),
+      onApplyAll: (kg) => widget.onSetWeight(li, kg),
+      onAddSet: () => widget.onAddSet(li),
+      onRemoveLast: () => widget.onRemoveSet(li),
+      onDeload: () => widget.onDeload(li),
     );
-  }
-
-  Future<void> _editSetWeight(
-    BuildContext context,
-    int li,
-    ActiveLift lift,
-    int setIndex,
-  ) async {
-    final before =
-        lift.workingSets.firstWhere((ws) => ws.index == setIndex).weightKg;
-    await showWeightEditor(
-      context,
-      title: '${lift.name} — set ${setIndex + 1} weight',
-      initialKg: before,
-      unit: widget.state.unit,
-      barKg: widget.state.barWeightKg,
-      onChanged: (kg) => widget.onSetWeightAt(li, setIndex, kg),
-    );
-    if (!context.mounted) return;
-
-    // Read the committed weight back from the now-updated state, then offer to
-    // carry the change into the later sets (StrongLifts keeps earlier ones).
-    final updated = widget.state.lifts[li];
-    final now =
-        updated.workingSets.firstWhere((ws) => ws.index == setIndex).weightKg;
-    if (now == before) return; // nothing changed
-
-    // Which later sets a recalc would actually move (straight/back-off just
-    // copy the weight; a top-set or ramp edit re-derives them proportionally).
-    final recalced = updated.weightsAfterEditingFrom(setIndex, now);
-    final changedFollowing = [
-      for (final ws in updated.workingSets)
-        if (ws.index > setIndex &&
-            ws.index < recalced.length &&
-            recalced[ws.index] != ws.weightKg)
-          ws.index,
-    ];
-    if (changedFollowing.isEmpty) return; // no later set moves
-
-    final unit = widget.state.unit;
-    final isCopy = changedFollowing.every((i) => recalced[i] == now);
-    final cascade = await showConfirmDialog(
-      context,
-      title: isCopy
-          ? 'Update the following sets?'
-          : 'Recalculate the following sets?',
-      message: isCopy
-          ? 'Set every set after this one to ${weightLabel(now, unit)} too?'
-          : 'Recalculate the sets after this one from '
-              '${weightLabel(now, unit)}, keeping their back-off/ramp pattern?',
-      cancelLabel: 'Only this set',
-      confirmLabel: isCopy ? 'Update following' : 'Recalculate',
-    );
-    if (cascade ?? false) widget.onSetWeightFrom(li, setIndex, now);
   }
 
   Future<void> _logBodyweight(BuildContext context) async {
@@ -640,9 +598,6 @@ class _LiftCard extends StatelessWidget {
     required this.isCurrent,
     required this.onCycle,
     required this.onEditWeight,
-    required this.onEditSetWeight,
-    required this.onAddSet,
-    required this.onRemoveSet,
     super.key,
   });
 
@@ -653,10 +608,9 @@ class _LiftCard extends StatelessWidget {
   /// on its next set, so there's a single "do this now" marker per workout.
   final bool isCurrent;
   final void Function(int setIndex, {required bool wasLogged}) onCycle;
+
+  /// Opens the weights sheet for this lift (tapping the header weight).
   final VoidCallback onEditWeight;
-  final void Function(int setIndex) onEditSetWeight;
-  final VoidCallback onAddSet;
-  final VoidCallback onRemoveSet;
 
   @override
   Widget build(BuildContext context) {
@@ -717,7 +671,7 @@ class _LiftCard extends StatelessWidget {
                             child: Text(
                               lift.name,
                               overflow: TextOverflow.ellipsis,
-                              style: theme.textTheme.titleMedium,
+                              style: AppTextStyles.of(context).cardTitle,
                             ),
                           ),
                           const SizedBox(width: 5),
@@ -744,8 +698,9 @@ class _LiftCard extends StatelessWidget {
                       children: [
                         Text(
                           topLabel,
-                          style: theme.textTheme.titleMedium
-                              ?.copyWith(color: theme.colorScheme.primary),
+                          style: AppTextStyles.of(context).cardTitle?.copyWith(
+                                color: theme.colorScheme.primary,
+                              ),
                         ),
                         Icon(
                           Icons.chevron_right,
@@ -759,8 +714,8 @@ class _LiftCard extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             Wrap(
-              spacing: 8,
-              runSpacing: 8,
+              spacing: 14,
+              runSpacing: 14,
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
                 for (final ws in lift.workingSets)
@@ -773,18 +728,7 @@ class _LiftCard extends StatelessWidget {
                     unit: unit,
                     isCursor: isCurrent && ws.index == nextIndex,
                     onTap: () => onCycle(ws.index, wasLogged: ws.logged),
-                    onEditWeight: () => onEditSetWeight(ws.index),
                   ),
-                IconButton(
-                  tooltip: 'Remove set',
-                  icon: const Icon(Icons.remove_circle_outline),
-                  onPressed: lift.workingSets.length > 1 ? onRemoveSet : null,
-                ),
-                IconButton(
-                  tooltip: 'Add set',
-                  icon: const Icon(Icons.add_circle_outline),
-                  onPressed: onAddSet,
-                ),
               ],
             ),
           ],
@@ -863,7 +807,6 @@ class _SetCell extends StatelessWidget {
     required this.unit,
     required this.isCursor,
     required this.onTap,
-    required this.onEditWeight,
     super.key,
   });
 
@@ -875,20 +818,23 @@ class _SetCell extends StatelessWidget {
   final bool isCursor;
   final VoidCallback onTap;
 
-  /// Tapping the per-set weight opens the weight editor for just this set.
-  final VoidCallback onEditWeight;
-
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final semantic = SemanticColors.of(context);
     final hit = (data.actualReps ?? 0) >= data.targetReps;
 
-    final Color? bg;
+    final Color bg;
     final Color? fg;
     if (!data.logged) {
-      // The cursor set gets a faint brand tint so it stands out from the rest.
-      bg = isCursor ? scheme.primary.withValues(alpha: 0.14) : null;
+      // Unlogged sets are subtle filled discs so they read as tap targets; the
+      // cursor set gets a stronger brand tint so "do this now" stands out.
+      bg = isCursor
+          ? Color.alphaBlend(
+              scheme.primary.withValues(alpha: 0.22),
+              scheme.surfaceContainerHighest,
+            )
+          : scheme.surfaceContainerHighest;
       fg = null;
     } else if (hit) {
       // A completed set uses the brand colour (StrongLifts uses its own).
@@ -900,21 +846,16 @@ class _SetCell extends StatelessWidget {
       fg = semantic.onFailure;
     }
 
-    // A logged set is a solid fill — match the ring to it so no grey outline
-    // shows around a completed/missed circle. The cursor set gets a thin brand
-    // ring (the pulse does the attention-grabbing); others a neutral outline.
-    final Border border;
-    if (data.logged) {
-      border = Border.all(color: bg!);
-    } else if (isCursor) {
-      border = Border.all(color: scheme.primary, width: 1.5);
-    } else {
-      border = Border.all(color: scheme.outline);
-    }
+    // Every state is a solid disc — the fill is the affordance. Only the cursor
+    // carries a thin brand ring (its pulse does the attention-grabbing); the
+    // rest match their fill so no grey outline shows.
+    final border = isCursor && !data.logged
+        ? Border.all(color: scheme.primary, width: 1.5)
+        : Border.all(color: bg);
 
     Widget circle = Container(
-      width: 48,
-      height: 48,
+      width: 56,
+      height: 56,
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: bg,
@@ -923,7 +864,7 @@ class _SetCell extends StatelessWidget {
       ),
       child: Text(
         '${data.actualReps ?? data.targetReps}',
-        style: TextStyle(color: fg, fontWeight: FontWeight.w600),
+        style: AppTextStyles.of(context).dataNumber?.copyWith(color: fg),
       ),
     );
     if (isCursor) {
@@ -935,30 +876,17 @@ class _SetCell extends StatelessWidget {
       children: [
         InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(28),
           child: circle,
         ),
         const SizedBox(height: 4),
-        InkWell(
-          onTap: onEditWeight,
-          borderRadius: BorderRadius.circular(6),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  formatWeight(displayWeight(data.weightKg, unit)),
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-                const SizedBox(width: 2),
-                Icon(
-                  Icons.edit,
-                  size: 11,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-              ],
-            ),
+        // Display-only weight label — no pencil. Weight is edited in the
+        // weights sheet (opened from the header weight), not per-set inline.
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+          child: Text(
+            formatWeight(displayWeight(data.weightKg, unit)),
+            style: AppTextStyles.of(context).setWeight,
           ),
         ),
       ],
@@ -1030,18 +958,96 @@ class _HeartbeatPulseState extends State<_HeartbeatPulse>
   }
 }
 
-class _WarmupTab extends StatelessWidget {
+class _WarmupTab extends StatefulWidget {
   const _WarmupTab({
     required this.state,
+    required this.tabController,
     required this.doneWarmups,
     required this.onToggleWarmup,
   });
 
   final WorkoutState state;
+  final TabController tabController;
   final Set<String> doneWarmups;
   final void Function(String key) onToggleWarmup;
 
+  @override
+  State<_WarmupTab> createState() => _WarmupTabState();
+}
+
+class _WarmupTabState extends State<_WarmupTab> {
+  final _scroll = ScrollController();
+  // One key per lift section, so the current exercise scrolls into view.
+  final _sectionKeys = <GlobalKey>[];
+  // Eagerly set from the initial state (see the _WorkoutTab note): a lazy
+  // `late` initializer would first run inside didUpdateWidget, after the state
+  // already advanced, hiding the change we compare against.
+  late int _currentLift;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentLift = _firstUnfinishedLift();
+    widget.tabController.addListener(_onTabChanged);
+  }
+
+  @override
+  void dispose() {
+    widget.tabController.removeListener(_onTabChanged);
+    _scroll.dispose();
+    super.dispose();
+  }
+
+  /// The lift to warm up now: the first with an unlogged set (last if done) —
+  /// the same "current exercise" the Workout tab tracks.
+  int _firstUnfinishedLift() {
+    final lifts = widget.state.lifts;
+    for (var i = 0; i < lifts.length; i++) {
+      final l = lifts[i];
+      final done =
+          l.workingSets.isNotEmpty && l.workingSets.every((s) => s.logged);
+      if (!done) return i;
+    }
+    return lifts.isEmpty ? 0 : lifts.length - 1;
+  }
+
+  void _onTabChanged() {
+    // Switched onto the Warmup tab (e.g. after a lift completed) — bring the
+    // current exercise's ramp into view.
+    if (!widget.tabController.indexIsChanging &&
+        widget.tabController.index == 1) {
+      _scrollToCurrentLift();
+    }
+  }
+
+  void _scrollToCurrentLift() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || _currentLift >= _sectionKeys.length) return;
+      final ctx = _sectionKeys[_currentLift].currentContext;
+      if (ctx == null) return;
+      unawaited(
+        Scrollable.ensureVisible(
+          ctx,
+          alignment: 0.05, // pin near the top, leaving a sliver of the prior
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        ),
+      );
+    });
+  }
+
+  @override
+  void didUpdateWidget(_WarmupTab oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final current = _firstUnfinishedLift();
+    if (current != _currentLift) {
+      _currentLift = current; // a lift was completed -> focus the next one
+      _scrollToCurrentLift();
+    }
+  }
+
   String _sideLabel(double weightKg) {
+    final state = widget.state;
     final load = platesPerSide(
       displayWeight(weightKg, state.unit),
       displayWeight(state.barWeightKg, state.unit),
@@ -1052,54 +1058,78 @@ class _WarmupTab extends StatelessWidget {
   }
 
   String _repsLabel(int reps, double weightKg) =>
-      '$reps×${formatWeight(displayWeight(weightKg, state.unit))} '
-      '${state.unit.name}';
+      '$reps×${formatWeight(displayWeight(weightKg, widget.state.unit))} '
+      '${widget.state.unit.name}';
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return ListView(
+    final state = widget.state;
+    if (_sectionKeys.length != state.lifts.length) {
+      _sectionKeys
+        ..clear()
+        ..addAll([for (var i = 0; i < state.lifts.length; i++) GlobalKey()]);
+    }
+    // A SingleChildScrollView (not ListView) so every section is laid out and
+    // its key stays reachable by Scrollable.ensureVisible — mirroring the
+    // Workout tab. Workouts have only a handful of lifts, so eager layout is
+    // cheap.
+    return SingleChildScrollView(
+      key: const Key('activeWarmupList'),
+      controller: _scroll,
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
-      children: [
-        for (var li = 0; li < state.lifts.length; li++) ...[
-          Padding(
-            padding: const EdgeInsets.only(top: 12, bottom: 8),
-            child:
-                Text(state.lifts[li].name, style: theme.textTheme.titleMedium),
-          ),
-          if (state.lifts[li].warmups.isEmpty)
-            Text(
-              'No warmup needed — start with the working weight.',
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            )
-          else ...[
-            for (var wi = 0; wi < state.lifts[li].warmups.length; wi++)
-              _WarmupRow(
-                reps: state.lifts[li].warmups[wi].reps,
-                label: _repsLabel(
-                  state.lifts[li].warmups[wi].reps,
-                  state.lifts[li].warmups[wi].weightKg,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          for (var li = 0; li < state.lifts.length; li++)
+            Column(
+              key: _sectionKeys[li],
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(top: 12, bottom: 8),
+                  child: Text(
+                    state.lifts[li].name,
+                    style: theme.textTheme.titleMedium,
+                  ),
                 ),
-                side: _sideLabel(state.lifts[li].warmups[wi].weightKg),
-                done: doneWarmups.contains('$li-$wi'),
-                onTap: () => onToggleWarmup('$li-$wi'),
-              ),
-            // The first working set as the final "go time" row.
-            if (state.lifts[li].workingSets.isNotEmpty)
-              _WarmupRow(
-                reps: state.lifts[li].workingSets.first.targetReps,
-                label: _repsLabel(
-                  state.lifts[li].workingSets.first.targetReps,
-                  state.lifts[li].workingSets.first.weightKg,
-                ),
-                side: _sideLabel(state.lifts[li].workingSets.first.weightKg),
-                isWork: true,
-              ),
-          ],
+                if (state.lifts[li].warmups.isEmpty)
+                  Text(
+                    'No warmup needed — start with the working weight.',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  )
+                else ...[
+                  for (var wi = 0; wi < state.lifts[li].warmups.length; wi++)
+                    _WarmupRow(
+                      reps: state.lifts[li].warmups[wi].reps,
+                      label: _repsLabel(
+                        state.lifts[li].warmups[wi].reps,
+                        state.lifts[li].warmups[wi].weightKg,
+                      ),
+                      side: _sideLabel(state.lifts[li].warmups[wi].weightKg),
+                      done: widget.doneWarmups.contains('$li-$wi'),
+                      onTap: () => widget.onToggleWarmup('$li-$wi'),
+                    ),
+                  // The first working set as the final "go time" row.
+                  if (state.lifts[li].workingSets.isNotEmpty)
+                    _WarmupRow(
+                      reps: state.lifts[li].workingSets.first.targetReps,
+                      label: _repsLabel(
+                        state.lifts[li].workingSets.first.targetReps,
+                        state.lifts[li].workingSets.first.weightKg,
+                      ),
+                      side: _sideLabel(
+                        state.lifts[li].workingSets.first.weightKg,
+                      ),
+                      isWork: true,
+                    ),
+                ],
+              ],
+            ),
         ],
-      ],
+      ),
     );
   }
 }
@@ -1150,10 +1180,9 @@ class _WarmupRow extends StatelessWidget {
                   )
                 : Text(
                     '$reps',
-                    style: TextStyle(
-                      color: isWork ? theme.colorScheme.onPrimary : null,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: AppTextStyles.of(context).dataNumber?.copyWith(
+                          color: isWork ? theme.colorScheme.onPrimary : null,
+                        ),
                   ),
           ),
           const SizedBox(width: 14),
@@ -1203,7 +1232,6 @@ class _BodyweightRow extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
       child: ListTile(
-        leading: const Icon(Icons.monitor_weight_outlined),
         title: const Text('Body weight'),
         trailing: currentKg == null
             ? const Text('Log')

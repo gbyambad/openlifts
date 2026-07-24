@@ -98,7 +98,7 @@ void main() {
     expect(squat!.workingWeightKg, 52.5); // 50 + 2.5, from the edited weight
   });
 
-  test('setSetWeight overrides one set only, keeping the anchor and others',
+  test('deloadLift drops the anchor by the deload percent and re-resolves',
       () async {
     final (db, container) = await _seeded();
     addTearDown(db.close);
@@ -106,22 +106,14 @@ void main() {
 
     final provider = activeWorkoutControllerProvider('sl5x5-a');
     await container.read(provider.future);
-    final notifier = container.read(provider.notifier);
 
-    final before = container.read(provider).value!.lifts[0];
-    expect(before.workingSets.length, greaterThan(1));
-    final originalOthers =
-        before.workingSets.skip(1).map((ws) => ws.weightKg).toList();
+    container.read(provider.notifier)
+      ..setLiftWeight(0, 100)
+      ..deloadLift(0); // default 10% deload -> 90 (already loadable)
 
-    notifier.setSetWeight(0, 0, 42.5); // just the top set
-
-    final after = container.read(provider).value!.lifts[0];
-    expect(after.anchorKg, before.anchorKg); // anchor untouched
-    expect(after.workingSets[0].weightKg, 42.5);
-    expect(
-      after.workingSets.skip(1).map((ws) => ws.weightKg).toList(),
-      originalOthers, // back-off sets untouched
-    );
+    final lift = container.read(provider).value!.lifts[0];
+    expect(lift.anchorKg, 90);
+    expect(lift.workingSets.every((ws) => ws.weightKg == 90), isTrue);
   });
 
   test('setSetWeightFrom cascades to later sets, leaving earlier ones',
@@ -145,6 +137,32 @@ void main() {
     expect(after.workingSets[0].weightKg, set0); // earlier set untouched
     for (final ws in after.workingSets.where((w) => w.index >= 1)) {
       expect(ws.weightKg, 42.5); // edited set + all following
+    }
+  });
+
+  test('setSetWeightFrom on the top set resyncs the anchor and warmups',
+      () async {
+    // Regression: stepping the top set used to move the header weight while the
+    // warmup ramp still targeted the old anchor. The ramp must follow the top.
+    final (db, container) = await _seeded();
+    addTearDown(db.close);
+    addTearDown(container.dispose);
+
+    final provider = activeWorkoutControllerProvider('sl5x5-a');
+    await container.read(provider.future);
+    final notifier = container.read(provider.notifier);
+
+    final before = container.read(provider).value!.lifts[0];
+    final newTop = before.workingSets[0].weightKg + 5;
+
+    notifier.setSetWeightFrom(0, 0, newTop);
+
+    final after = container.read(provider).value!.lifts[0];
+    expect(after.anchorKg, newTop); // straight scheme: anchor tracks the top
+    // Ramp rebuilt from the new anchor.
+    expect(after.warmups, isNot(before.warmups));
+    if (after.warmups.isNotEmpty) {
+      expect(after.warmups.last.weightKg, lessThanOrEqualTo(newTop));
     }
   });
 
