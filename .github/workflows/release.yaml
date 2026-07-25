@@ -1,0 +1,139 @@
+name: Release
+
+# Build a signed release APK and publish it as a GitHub Release.
+#
+# Two ways to trigger, both maintainer-only:
+#   1. Push a version tag:   git tag v1.0.0 && git push origin v1.0.0
+#   2. Actions tab → "Release" → "Run workflow" → type the version (e.g. 1.0.0)
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: "Auto-bump from the latest tag (ignored if 'version' is set)"
+        type: choice
+        options: [patch, minor, major]
+        default: patch
+        required: false
+      version:
+        description: "Exact version override, e.g. 1.2.0 (leave blank to auto-bump)"
+        required: false
+        type: string
+
+permissions:
+  contents: write # create the release, tag, and upload the APK
+
+jobs:
+  build-release:
+    runs-on: ubuntu-latest
+    steps:
+      # Only the maintainer may cut a release. workflow_dispatch already
+      # requires write access, so outside contributors can't reach it; this
+      # makes it explicit and stays correct even if collaborators are added.
+      - name: Guard — maintainer only
+        if: github.actor != 'erdeneulzii'
+        run: |
+          echo "::error::Only the maintainer can publish releases (actor: ${{ github.actor }})."
+          exit 1
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # need all tags so auto-bump can read the latest one
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      # Generated code is git-ignored, so build it before the app compiles.
+      - name: Run code generation
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: Decode keystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+        run: echo "$KEYSTORE_BASE64" | base64 --decode > android/app/upload-keystore.jks
+
+      - name: Create key.properties
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+        run: |
+          cat > android/key.properties <<EOF
+          storePassword=$KEYSTORE_PASSWORD
+          keyPassword=$KEY_PASSWORD
+          keyAlias=$KEY_ALIAS
+          storeFile=upload-keystore.jks
+          EOF
+
+      # Resolve the version from the trigger, in priority order:
+      #   1. tag push          -> the tag itself (v1.2.3 -> 1.2.3)
+      #   2. manual + version   -> the exact override you typed
+      #   3. manual + bump      -> latest vX.Y.Z tag with the chosen part bumped
+      # First-ever release with no tags starts from 0.0.0 (so patch -> 0.0.1,
+      # minor -> 0.1.0, major -> 1.0.0). Inputs come in via env to avoid any
+      # shell-injection from the typed field.
+      - name: Resolve version
+        id: version
+        env:
+          EVENT: ${{ github.event_name }}
+          REF_NAME: ${{ github.ref_name }}
+          IN_VERSION: ${{ inputs.version }}
+          IN_BUMP: ${{ inputs.bump }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT" != "workflow_dispatch" ]; then
+            VERSION="${REF_NAME#v}"
+          elif [ -n "$IN_VERSION" ]; then
+            VERSION="${IN_VERSION#v}"
+          else
+            LATEST="$(git tag -l 'v*.*.*' | sort -V | tail -n1)"
+            BASE="${LATEST#v}"; BASE="${BASE:-0.0.0}"
+            IFS=. read -r MAJ MIN PAT <<< "$BASE"
+            case "$IN_BUMP" in
+              major) MAJ=$((MAJ + 1)); MIN=0; PAT=0 ;;
+              minor) MIN=$((MIN + 1)); PAT=0 ;;
+              *)     PAT=$((PAT + 1)) ;;
+            esac
+            VERSION="$MAJ.$MIN.$PAT"
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Releasing $VERSION (tag v$VERSION)"
+
+      # versionName from the tag; the ever-increasing run number is the
+      # versionCode (Android requires it to strictly increase across updates).
+      - name: Build signed release APK
+        run: |
+          flutter build apk --release \
+            --build-name="${{ steps.version.outputs.version }}" \
+            --build-number="${{ github.run_number }}"
+
+      - name: Stage APK
+        run: |
+          mkdir -p dist
+          cp build/app/outputs/flutter-apk/app-release.apk \
+             "dist/openlifts-${{ steps.version.outputs.tag }}.apk"
+
+      # tag_name makes this work for both triggers: on a manual run it creates
+      # the tag at the checked-out commit; on a tag push it reuses the existing
+      # one. Release notes are auto-generated from PRs merged since the last tag.
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: ${{ steps.version.outputs.tag }}
+          files: dist/openlifts-*.apk
+          generate_release_notes: true
+          fail_on_unmatched_files: true

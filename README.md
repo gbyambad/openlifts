@@ -3,6 +3,12 @@
 A local-first **StrongLifts 5×5** barbell strength tracker, built with Flutter
 (Android + iOS). No account, no backend — your data stays on your device.
 
+<p align="center">
+  <a href="https://github.com/erdeneulzii/openlifts/releases/latest">
+    <img alt="Get it on GitHub" src="docs/badges/get-it-on-github.png" height="80px">
+  </a>
+</p>
+
 > Working in this repo? Read [`AGENTS.md`](AGENTS.md) for the architecture,
 > house patterns, and StrongLifts domain rules.
 

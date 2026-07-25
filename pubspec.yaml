@@ -1,6 +1,8 @@
 name: openlifts
 description: "OpenLifts — a local-first StrongLifts 5x5 barbell strength tracker."
 publish_to: "none"
+# Dev placeholder only. Release builds get their version from the pushed git
+# tag (see .github/workflows/release.yaml) — bump the tag, not this line.
 version: 0.1.0+1
 
 environment:
