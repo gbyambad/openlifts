@@ -9,6 +9,13 @@ A local-first **StrongLifts 5×5** barbell strength tracker, built with Flutter
   </a>
 </p>
 
+<p align="center"><sub>
+Android may warn that the app is from an unknown source or an unverified
+developer, and ask you to allow installs from your browser or file manager. This
+is expected for any app installed outside the Play Store. Tap
+<b>More details → Install anyway</b> to continue.
+</sub></p>
+
 > Working in this repo? Read [`AGENTS.md`](AGENTS.md) for the architecture,
 > house patterns, and StrongLifts domain rules.
 
