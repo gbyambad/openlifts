@@ -110,9 +110,9 @@ class _HistoryTileState extends State<_HistoryTile> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-            _formatDate(loc, entry.date),
-            style: theme.textTheme.bodySmall,
-          ),
+                _formatDate(loc, entry.date),
+                style: theme.textTheme.bodySmall,
+              ),
               AnimatedRotation(
                 turns: _expanded ? 0.5 : 0,
                 duration: const Duration(milliseconds: 150),

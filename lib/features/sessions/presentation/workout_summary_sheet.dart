@@ -54,8 +54,7 @@ Future<void> showWorkoutSummary(
             Row(
               children: [
                 Expanded(
-                  child:
-                      _Stat(label: loc.setsLoggedLabel, value: '$setsDone'),
+                  child: _Stat(label: loc.setsLoggedLabel, value: '$setsDone'),
                 ),
                 Expanded(
                   child: _Stat(
