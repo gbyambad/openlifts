@@ -5,6 +5,7 @@ import 'package:openlifts/core/database/tables.dart';
 import 'package:openlifts/core/units/units.dart';
 import 'package:openlifts/features/exercises/application/exercise_detail.dart';
 import 'package:openlifts/features/progress/domain/lift_chart.dart';
+import 'package:openlifts/l10n/app_localizations.dart';
 import 'package:openlifts/shared/widgets/async_view.dart';
 
 /// Exercise detail: how-to instructions plus this lift's recent history.
@@ -18,7 +19,11 @@ class ExerciseDetailScreen extends ConsumerWidget {
     return AsyncView(
       value: ref.watch(exerciseDetailProvider(exerciseId)),
       data: (d) => d == null
-          ? const Scaffold(body: Center(child: Text('Exercise not found.')))
+          ? Scaffold(
+              body: Center(
+                child: Text(AppLocalizations.of(context)!.exerciseNotFound),
+              ),
+            )
           : ExerciseDetailView(
               exercise: d.exercise,
               history: d.history,
@@ -47,6 +52,7 @@ class ExerciseDetailView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final loc = AppLocalizations.of(context)!;
     final chips = <String>[
       exercise.equipment.name,
       if (exercise.mechanic != null) exercise.mechanic!.name,
@@ -65,7 +71,7 @@ class ExerciseDetailView extends StatelessWidget {
           ),
           if (history.isNotEmpty) ...[
             const SizedBox(height: 16),
-            Text('Current', style: theme.textTheme.titleMedium),
+            Text(loc.currentLabel, style: theme.textTheme.titleMedium),
             const SizedBox(height: 4),
             Text(
               _weight(history.last.weightKg),
@@ -74,10 +80,10 @@ class ExerciseDetailView extends StatelessWidget {
             ),
           ],
           const SizedBox(height: 16),
-          Text('How to perform', style: theme.textTheme.titleMedium),
+          Text(loc.howToPerform, style: theme.textTheme.titleMedium),
           const SizedBox(height: 8),
           if (exercise.instructions.isEmpty)
-            Text('No instructions yet.', style: theme.textTheme.bodyMedium)
+            Text(loc.noInstructionsYetShort, style: theme.textTheme.bodyMedium)
           else
             for (var i = 0; i < exercise.instructions.length; i++)
               Padding(
@@ -101,7 +107,7 @@ class ExerciseDetailView extends StatelessWidget {
               ),
           if (history.length > 1) ...[
             const SizedBox(height: 16),
-            Text('Recent top sets', style: theme.textTheme.titleMedium),
+            Text(loc.recentTopSets, style: theme.textTheme.titleMedium),
             const SizedBox(height: 8),
             for (final p in history.reversed.take(8))
               Padding(

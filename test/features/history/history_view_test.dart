@@ -5,11 +5,13 @@ import 'package:openlifts/features/history/application/history_view.dart';
 import 'package:openlifts/features/history/presentation/history_screen.dart';
 import 'package:openlifts/features/sessions/domain/session_repository.dart';
 
+import '../../support/test_app.dart';
+
 void main() {
   testWidgets('empty state when there is no history', (tester) async {
     await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
+      wrapWithLocalizations(
+        Scaffold(
           body: HistoryView(
             entries: const [],
             unit: Unit.kg,
@@ -34,8 +36,8 @@ void main() {
     ];
 
     await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
+      wrapWithLocalizations(
+        Scaffold(
           body: HistoryView(
             entries: entries,
             unit: Unit.kg,
@@ -63,8 +65,8 @@ void main() {
     ];
 
     await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
+      wrapWithLocalizations(
+        Scaffold(
           body: HistoryView(
             entries: entries,
             unit: Unit.kg,
@@ -96,8 +98,8 @@ void main() {
     ];
 
     await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
+      wrapWithLocalizations(
+        Scaffold(
           body: HistoryView(
             entries: entries,
             unit: Unit.kg,

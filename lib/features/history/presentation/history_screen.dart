@@ -5,6 +5,7 @@ import 'package:openlifts/core/date/date_labels.dart';
 import 'package:openlifts/core/units/units.dart';
 import 'package:openlifts/features/history/application/history_view.dart';
 import 'package:openlifts/features/sessions/domain/session_repository.dart';
+import 'package:openlifts/l10n/app_localizations.dart';
 import 'package:openlifts/shared/widgets/async_view.dart';
 import 'package:openlifts/shared/widgets/empty_state.dart';
 
@@ -16,7 +17,7 @@ class HistoryScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      appBar: AppBar(title: const Text('History')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.historyTitle)),
       body: AsyncView(
         value: ref.watch(historyViewProvider),
         data: (d) => HistoryView(
@@ -47,8 +48,8 @@ class HistoryView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (entries.isEmpty) {
-      return const EmptyState(
-        'No workouts yet.\nFinished workouts show up here.',
+      return EmptyState(
+        AppLocalizations.of(context)!.historyEmptyMessage,
         icon: Icons.history,
       );
     }
@@ -86,12 +87,12 @@ class _HistoryTileState extends State<_HistoryTile> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final loc = AppLocalizations.of(context)!;
     final entry = widget.entry;
-    final setsLabel =
-        '${entry.setsLogged} ${entry.setsLogged == 1 ? 'set' : 'sets'}';
+    final setsLabel = loc.setsCount(entry.setsLogged);
     final vol = displayWeight(entry.totalVolumeKg, widget.unit);
     final volumeLabel = entry.totalVolumeKg > 0
-        ? '${vol.toStringAsFixed(0)} ${widget.unit.name} vol'
+        ? loc.historyVolume(vol.toStringAsFixed(0), widget.unit.name)
         : null;
     // Sets + volume on one line; the per-exercise top sets show on expand.
     final subtitleParts = <String>[
@@ -108,7 +109,10 @@ class _HistoryTileState extends State<_HistoryTile> {
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(_formatDate(entry.date), style: theme.textTheme.bodySmall),
+              Text(
+            _formatDate(loc, entry.date),
+            style: theme.textTheme.bodySmall,
+          ),
               AnimatedRotation(
                 turns: _expanded ? 0.5 : 0,
                 duration: const Duration(milliseconds: 150),
@@ -123,9 +127,9 @@ class _HistoryTileState extends State<_HistoryTile> {
             future: widget.loadExercises(entry.sessionId),
             builder: (context, snapshot) {
               if (snapshot.hasError) {
-                return const Padding(
-                  padding: EdgeInsets.all(16),
-                  child: Text("Couldn't load exercises."),
+                return Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Text(loc.couldNotLoadExercises),
                 );
               }
               final exercises = snapshot.data;
@@ -169,4 +173,5 @@ class _HistoryTileState extends State<_HistoryTile> {
   }
 }
 
-String _formatDate(DateTime d) => '${monthLabels[d.month - 1]} ${d.day}';
+String _formatDate(AppLocalizations loc, DateTime d) =>
+    '${monthShort(loc, d.month)} ${d.day}';

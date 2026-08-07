@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:openlifts/features/home/application/welcome_back.dart';
+import 'package:openlifts/l10n/app_localizations.dart';
 
 /// A returning-lifter prompt: after a layoff, offer to ease back in with
 /// lighter weights. The deload amount is pre-filled from the time away.
@@ -45,6 +46,7 @@ class _WelcomeBackCardState extends State<WelcomeBackCard> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
+    final loc = AppLocalizations.of(context)!;
     final weeks = (widget.suggestion.daysAway / 7).round();
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
@@ -63,7 +65,7 @@ class _WelcomeBackCardState extends State<WelcomeBackCard> {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  'Welcome back',
+                  loc.welcomeBackTitle,
                   style: theme.textTheme.titleSmall
                       ?.copyWith(fontWeight: FontWeight.w700),
                 ),
@@ -71,15 +73,14 @@ class _WelcomeBackCardState extends State<WelcomeBackCard> {
             ),
             const SizedBox(height: 6),
             Text(
-              "It's been about $weeks weeks. Ease back in with lighter weights "
-              'to rebuild form and avoid soreness.',
+              loc.welcomeBackMessage(weeks),
               style: theme.textTheme.bodyMedium
                   ?.copyWith(color: scheme.onSurfaceVariant),
             ),
             const SizedBox(height: 8),
             Row(
               children: [
-                Text('Deload', style: theme.textTheme.bodyMedium),
+                Text(loc.deload, style: theme.textTheme.bodyMedium),
                 const Spacer(),
                 IconButton.filledTonal(
                   visualDensity: VisualDensity.compact,
@@ -111,7 +112,7 @@ class _WelcomeBackCardState extends State<WelcomeBackCard> {
                 Expanded(
                   child: OutlinedButton(
                     onPressed: _submitted ? null : _dismiss,
-                    child: const Text('Keep weights'),
+                    child: Text(loc.keepWeights),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -120,7 +121,7 @@ class _WelcomeBackCardState extends State<WelcomeBackCard> {
                     onPressed: _submitted
                         ? null
                         : () => _percent <= 0 ? _dismiss() : _apply(_percent),
-                    child: const Text('Apply deload'),
+                    child: Text(loc.applyDeload),
                   ),
                 ),
               ],

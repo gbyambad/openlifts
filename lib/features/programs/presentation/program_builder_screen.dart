@@ -5,6 +5,7 @@ import 'package:openlifts/features/programs/application/program_builder_controll
 import 'package:openlifts/features/programs/domain/program_draft.dart';
 import 'package:openlifts/features/programs/presentation/exercise_picker_sheet.dart';
 import 'package:openlifts/features/programs/presentation/set_scheme_sheet.dart';
+import 'package:openlifts/l10n/app_localizations.dart';
 import 'package:openlifts/shared/widgets/async_view.dart';
 import 'package:openlifts/shared/widgets/weekday_picker.dart';
 
@@ -51,6 +52,7 @@ class _BuilderState extends ConsumerState<_Builder> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final loc = AppLocalizations.of(context)!;
     // The name lives in the local controller; everything else reflects state.
     final draft = ref
             .watch(programBuilderControllerProvider(widget.editProgramId))
@@ -59,12 +61,15 @@ class _BuilderState extends ConsumerState<_Builder> {
 
     return Scaffold(
       appBar: AppBar(
-        title:
-            Text(widget.editProgramId == null ? 'New program' : 'Edit program'),
+        title: Text(
+          widget.editProgramId == null
+              ? loc.newProgramTitle
+              : loc.editProgramTitle,
+        ),
         actions: [
           TextButton(
             onPressed: draft.isSaveable ? _save : null,
-            child: const Text('Save'),
+            child: Text(loc.save),
           ),
         ],
       ),
@@ -74,21 +79,21 @@ class _BuilderState extends ConsumerState<_Builder> {
           TextField(
             controller: _name,
             textCapitalization: TextCapitalization.words,
-            decoration: const InputDecoration(
-              labelText: 'Program name',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: loc.programNameLabel,
+              border: const OutlineInputBorder(),
             ),
             onChanged: _ctrl.setName,
           ),
           const SizedBox(height: 20),
-          Text('Training days', style: theme.textTheme.titleMedium),
+          Text(loc.trainingDays, style: theme.textTheme.titleMedium),
           const SizedBox(height: 8),
           WeekdayPicker(
             isSelected: draft.weekdays.contains,
             onToggle: _ctrl.toggleWeekday,
           ),
           const SizedBox(height: 24),
-          Text('Workouts', style: theme.textTheme.titleMedium),
+          Text(loc.workoutsLabel, style: theme.textTheme.titleMedium),
           const SizedBox(height: 8),
           for (var di = 0; di < draft.days.length; di++)
             _DayCard(
@@ -104,7 +109,7 @@ class _BuilderState extends ConsumerState<_Builder> {
           OutlinedButton.icon(
             onPressed: _ctrl.addDay,
             icon: const Icon(Icons.add),
-            label: const Text('Add workout day'),
+            label: Text(loc.addWorkoutDay),
           ),
         ],
       ),
@@ -132,10 +137,11 @@ class _BuilderState extends ConsumerState<_Builder> {
   Future<void> _save() async {
     final router = GoRouter.of(context);
     final messenger = ScaffoldMessenger.of(context);
+    final loc = AppLocalizations.of(context)!;
     final id = await _ctrl.save();
     if (id == null) return;
     messenger.showSnackBar(
-      const SnackBar(content: Text('Program saved')),
+      SnackBar(content: Text(loc.programSavedMessage)),
     );
     router.go('/programs');
   }
@@ -163,6 +169,7 @@ class _DayCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final loc = AppLocalizations.of(context)!;
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       color: theme.colorScheme.surfaceContainer,
@@ -177,12 +184,12 @@ class _DayCard extends StatelessWidget {
                   child: Text(day.name, style: theme.textTheme.titleSmall),
                 ),
                 IconButton(
-                  tooltip: 'Rename day',
+                  tooltip: loc.renameDayTooltip,
                   icon: const Icon(Icons.edit_outlined),
                   onPressed: () => _rename(context),
                 ),
                 IconButton(
-                  tooltip: 'Remove day',
+                  tooltip: loc.removeDayTooltip,
                   icon: const Icon(Icons.delete_outline),
                   onPressed: canRemove ? onRemoveDay : null,
                 ),
@@ -192,7 +199,7 @@ class _DayCard extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
                 child: Text(
-                  'No exercises yet.',
+                  loc.noExercisesYet,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
@@ -203,10 +210,10 @@ class _DayCard extends StatelessWidget {
                 ListTile(
                   contentPadding: const EdgeInsets.only(left: 4),
                   title: Text(day.exercises[ei].name),
-                  subtitle: Text(day.exercises[ei].summary),
+                  subtitle: Text(day.exercises[ei].summary(loc)),
                   onTap: () => onEditScheme(ei),
                   trailing: IconButton(
-                    tooltip: 'Remove exercise',
+                    tooltip: loc.removeExerciseTooltip,
                     icon: const Icon(Icons.remove_circle_outline),
                     onPressed: () => onRemoveExercise(ei),
                   ),
@@ -215,7 +222,7 @@ class _DayCard extends StatelessWidget {
             TextButton.icon(
               onPressed: onAddExercise,
               icon: const Icon(Icons.add),
-              label: const Text('Add exercise'),
+              label: Text(loc.addExercise),
             ),
           ],
         ),
@@ -224,13 +231,14 @@ class _DayCard extends StatelessWidget {
   }
 
   Future<void> _rename(BuildContext context) async {
+    final loc = AppLocalizations.of(context)!;
     final controller = TextEditingController(text: day.name);
     String? name;
     try {
       name = await showDialog<String>(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('Rename day'),
+          title: Text(loc.renameDayTooltip),
           content: TextField(
             controller: controller,
             autofocus: true,
@@ -239,11 +247,11 @@ class _DayCard extends StatelessWidget {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
+              child: Text(loc.cancel),
             ),
             FilledButton(
               onPressed: () => Navigator.pop(context, controller.text.trim()),
-              child: const Text('Save'),
+              child: Text(loc.save),
             ),
           ],
         ),

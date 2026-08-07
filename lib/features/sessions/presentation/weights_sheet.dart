@@ -4,6 +4,7 @@ import 'package:openlifts/core/theme/app_text_styles.dart';
 import 'package:openlifts/core/units/loadable.dart';
 import 'package:openlifts/core/units/units.dart';
 import 'package:openlifts/features/programs/domain/set_group_resolver.dart';
+import 'package:openlifts/l10n/app_localizations.dart';
 import 'package:openlifts/shared/widgets/plate_bar.dart';
 
 /// One row in the weights sheet: a set's weight and its rep target.
@@ -229,6 +230,7 @@ class _WeightsSheetBodyState extends State<_WeightsSheetBody> {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final text = AppTextStyles.of(context);
+    final loc = AppLocalizations.of(context)!;
 
     final scroll = SingleChildScrollView(
       padding: EdgeInsets.fromLTRB(
@@ -247,7 +249,7 @@ class _WeightsSheetBodyState extends State<_WeightsSheetBody> {
             textAlign: TextAlign.center,
           ),
           Text(
-            'Set ${_selected + 1} of ${_weights.length}',
+            loc.setOfLabel(_selected + 1, _weights.length),
             style: theme.textTheme.bodyMedium?.copyWith(
               color: scheme.onSurfaceVariant,
             ),
@@ -319,7 +321,7 @@ class _WeightsSheetBodyState extends State<_WeightsSheetBody> {
           ),
           const SizedBox(height: 4),
           Text(
-            '${widget.unit.name} · tap to type',
+            loc.tapToTypeHint(widget.unit.name),
             textAlign: TextAlign.center,
             style: theme.textTheme.bodySmall?.copyWith(
               color: scheme.onSurfaceVariant,
@@ -342,7 +344,9 @@ class _WeightsSheetBodyState extends State<_WeightsSheetBody> {
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
               icon: const Icon(Icons.download_outlined),
-              label: Text('Deload ${formatWeight(widget.deloadPercent)}%'),
+              label: Text(
+                loc.deloadPercentLabel(formatWeight(widget.deloadPercent)),
+              ),
             ),
           ),
           const SizedBox(height: 6),
@@ -366,7 +370,7 @@ class _WeightsSheetBodyState extends State<_WeightsSheetBody> {
                           widget.onRemoveLast();
                           _syncField();
                         },
-                  child: const Text('Remove set'),
+                  child: Text(loc.removeSetButton),
                 ),
               ),
               const SizedBox(width: 12),
@@ -380,7 +384,7 @@ class _WeightsSheetBodyState extends State<_WeightsSheetBody> {
                     });
                     widget.onAddSet();
                   },
-                  child: const Text('Add set'),
+                  child: Text(loc.addSetButton),
                 ),
               ),
             ],
@@ -391,7 +395,7 @@ class _WeightsSheetBodyState extends State<_WeightsSheetBody> {
           TextButton(
             onPressed: _evenOut,
             style: TextButton.styleFrom(textStyle: text.buttonLabel),
-            child: const Text('Even out all sets'),
+            child: Text(loc.evenOutAllSets),
           ),
         ],
       ),
@@ -406,7 +410,7 @@ class _WeightsSheetBodyState extends State<_WeightsSheetBody> {
           top: 0,
           right: 4,
           child: IconButton(
-            tooltip: 'Close',
+            tooltip: loc.close,
             icon: const Icon(Icons.close),
             onPressed: () {
               _weightFocus.unfocus();
@@ -439,6 +443,7 @@ class _SetTable extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
+    final loc = AppLocalizations.of(context)!;
     final muted = theme.textTheme.bodySmall?.copyWith(
       color: scheme.onSurfaceVariant,
     );
@@ -475,9 +480,13 @@ class _SetTable extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Row(
               children: [
-                Expanded(child: cell('Set', s: muted)),
+                Expanded(child: cell(loc.setColumnHeader, s: muted)),
                 Expanded(
-                  child: cell('Reps', align: TextAlign.center, s: muted),
+                  child: cell(
+                    loc.repsColumnHeader,
+                    align: TextAlign.center,
+                    s: muted,
+                  ),
                 ),
                 Expanded(
                   child: cell(unit.name, align: TextAlign.end, s: muted),

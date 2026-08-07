@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:openlifts/features/programs/application/program_detail.dart';
 import 'package:openlifts/features/programs/application/programs_view.dart';
+import 'package:openlifts/l10n/app_localizations.dart';
 import 'package:openlifts/shared/widgets/async_view.dart';
 import 'package:openlifts/shared/widgets/weekday_picker.dart';
 
@@ -18,7 +19,11 @@ class ProgramDetailScreen extends ConsumerWidget {
     return AsyncView(
       value: ref.watch(programDetailProvider(programId)),
       data: (detail) => detail == null
-          ? const Scaffold(body: Center(child: Text('Program not found.')))
+          ? Scaffold(
+              body: Center(
+                child: Text(AppLocalizations.of(context)!.programNotFound),
+              ),
+            )
           : _Detail(detail: detail),
     );
   }
@@ -39,6 +44,7 @@ class _DetailState extends ConsumerState<_Detail> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final loc = AppLocalizations.of(context)!;
     final d = widget.detail;
 
     return Scaffold(
@@ -49,10 +55,10 @@ class _DetailState extends ConsumerState<_Detail> {
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                Text('Training days', style: theme.textTheme.titleMedium),
+                Text(loc.trainingDays, style: theme.textTheme.titleMedium),
                 const SizedBox(height: 4),
                 Text(
-                  'Pick the days you train. Workouts rotate across them.',
+                  loc.pickTrainingDaysHint,
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
@@ -67,7 +73,7 @@ class _DetailState extends ConsumerState<_Detail> {
                   ),
                 ),
                 const SizedBox(height: 24),
-                Text('Workouts', style: theme.textTheme.titleMedium),
+                Text(loc.workoutsLabel, style: theme.textTheme.titleMedium),
                 const SizedBox(height: 8),
                 for (final w in d.workouts) _WorkoutOutlineCard(workout: w),
               ],
@@ -87,8 +93,9 @@ class _DetailState extends ConsumerState<_Detail> {
                             .useProgram(d.id, _days.toList()..sort());
                         router.go('/today');
                       },
-                child:
-                    Text(d.isActive ? 'Update schedule' : 'Use this program'),
+                child: Text(
+                  d.isActive ? loc.scheduleUpdateCta : loc.scheduleUseCta,
+                ),
               ),
             ),
           ),

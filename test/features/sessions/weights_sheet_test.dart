@@ -4,6 +4,8 @@ import 'package:openlifts/core/database/tables.dart';
 import 'package:openlifts/features/programs/domain/set_group_resolver.dart';
 import 'package:openlifts/features/sessions/presentation/weights_sheet.dart';
 
+import '../../support/test_app.dart';
+
 /// Pumps a button that opens the weights sheet, recording every callback.
 Future<void> _open(
   WidgetTester tester, {
@@ -21,8 +23,8 @@ Future<void> _open(
   addTearDown(tester.view.resetDevicePixelRatio);
 
   await tester.pumpWidget(
-    MaterialApp(
-      home: Scaffold(
+    wrapWithLocalizations(
+      Scaffold(
         body: Builder(
           builder: (context) => ElevatedButton(
             onPressed: () => showWeightsSheet(

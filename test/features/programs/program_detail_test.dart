@@ -4,6 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:openlifts/features/programs/application/program_detail.dart';
 import 'package:openlifts/features/programs/presentation/program_detail_screen.dart';
 
+import '../../support/test_app.dart';
+
 void main() {
   testWidgets('shows the workout structure and training-day chips',
       (tester) async {
@@ -23,7 +25,9 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [programDetailProvider('sl').overrideWith((ref) => detail)],
-        child: const MaterialApp(home: ProgramDetailScreen(programId: 'sl')),
+        child: wrapWithLocalizations(
+          const ProgramDetailScreen(programId: 'sl'),
+        ),
       ),
     );
     await tester.pumpAndSettle();

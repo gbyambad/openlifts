@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:openlifts/l10n/app_localizations.dart';
 
 /// Renders an [AsyncValue] with the app's standard loading and error states,
 /// delegating the loaded case to [data]. Keeps every screen's spinner/error
@@ -14,7 +15,9 @@ class AsyncView<T> extends StatelessWidget {
   Widget build(BuildContext context) {
     return value.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => Center(child: Text('Something went wrong.\n$e')),
+      error: (e, _) => Center(
+        child: Text(AppLocalizations.of(context)!.errorGeneric('$e')),
+      ),
       data: data,
     );
   }

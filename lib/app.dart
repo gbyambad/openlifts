@@ -4,6 +4,7 @@ import 'package:openlifts/core/app_bootstrap.dart';
 import 'package:openlifts/core/router/app_router.dart';
 import 'package:openlifts/core/theme/app_theme.dart';
 import 'package:openlifts/features/settings/application/settings_providers.dart';
+import 'package:openlifts/l10n/app_localizations.dart';
 
 /// Root widget. Configures theme + routing, and gates the UI behind startup
 /// seeding (a splash while the bundled data seeds).
@@ -19,6 +20,9 @@ class OpenLiftsApp extends ConsumerWidget {
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
       themeMode: ref.watch(themeModeProvider), // defaults to dark until set
+      locale: ref.watch(localeProvider),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       routerConfig: appRouter,
       builder: (context, child) => boot.when(
         data: (_) => child!,
@@ -39,7 +43,7 @@ class _Splash extends StatelessWidget {
     return Scaffold(
       body: Center(
         child: failed
-            ? const Text('Startup failed. Please restart.')
+            ? Text(AppLocalizations.of(context)!.startupFailed)
             : const CircularProgressIndicator(),
       ),
     );

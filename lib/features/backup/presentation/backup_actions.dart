@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:openlifts/features/backup/application/backup_providers.dart';
 import 'package:openlifts/features/backup/domain/backup_repository.dart';
+import 'package:openlifts/l10n/app_localizations.dart';
 import 'package:openlifts/shared/widgets/confirm_dialog.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -13,6 +14,7 @@ import 'package:share_plus/share_plus.dart';
 /// Serializes user data and hands it to the OS share sheet.
 Future<void> exportBackup(BuildContext context, WidgetRef ref) async {
   final messenger = ScaffoldMessenger.of(context);
+  final loc = AppLocalizations.of(context)!;
   try {
     final json = await ref.read(backupControllerProvider.notifier).exportJson();
     final dir = await getTemporaryDirectory();
@@ -22,7 +24,7 @@ Future<void> exportBackup(BuildContext context, WidgetRef ref) async {
       ShareParams(files: [XFile(file.path)], subject: 'OpenLifts backup'),
     );
   } on Object catch (e) {
-    messenger.showSnackBar(SnackBar(content: Text('Export failed: $e')));
+    messenger.showSnackBar(SnackBar(content: Text(loc.exportFailed('$e'))));
   }
 }
 
@@ -30,6 +32,7 @@ Future<void> exportBackup(BuildContext context, WidgetRef ref) async {
 /// a safety export of the current state, then restores.
 Future<void> importBackup(BuildContext context, WidgetRef ref) async {
   final messenger = ScaffoldMessenger.of(context);
+  final loc = AppLocalizations.of(context)!;
   final controller = ref.read(backupControllerProvider.notifier);
 
   final String json;
@@ -45,7 +48,7 @@ Future<void> importBackup(BuildContext context, WidgetRef ref) async {
         ? utf8.decode(file.bytes!)
         : await File(file.path!).readAsString();
   } on Object catch (e) {
-    messenger.showSnackBar(SnackBar(content: Text('Could not read file: $e')));
+    messenger.showSnackBar(SnackBar(content: Text(loc.couldNotReadFile('$e'))));
     return;
   }
 
@@ -63,11 +66,10 @@ Future<void> importBackup(BuildContext context, WidgetRef ref) async {
   if (!context.mounted) return;
   final confirmed = await showConfirmDialog(
     context,
-    title: 'Restore from backup?',
-    message:
-        'This replaces all current data with the backup. Your current data is '
-        'saved to a safety file first, but this cannot be undone in the app.',
-    confirmLabel: 'Replace',
+    title: loc.restoreConfirmTitle,
+    message: loc.restoreConfirmMessage,
+    confirmLabel: loc.replace,
+    cancelLabel: loc.cancel,
   );
   if (confirmed != true) return;
 
@@ -78,12 +80,12 @@ Future<void> importBackup(BuildContext context, WidgetRef ref) async {
     await File('${docs.path}/openlifts-safety-backup.json')
         .writeAsString(current);
     await controller.restore(json);
-    messenger.showSnackBar(const SnackBar(content: Text('Backup restored')));
+    messenger.showSnackBar(SnackBar(content: Text(loc.backupRestoredMessage)));
   } on IncompatibleBackupException catch (e) {
     messenger.showSnackBar(SnackBar(content: Text(e.message)));
   } on CorruptBackupException catch (e) {
     messenger.showSnackBar(SnackBar(content: Text(e.message)));
   } on Object catch (e) {
-    messenger.showSnackBar(SnackBar(content: Text('Restore failed: $e')));
+    messenger.showSnackBar(SnackBar(content: Text(loc.restoreFailed('$e'))));
   }
 }

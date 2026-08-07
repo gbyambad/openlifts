@@ -8,7 +8,7 @@ Future<bool?> showConfirmDialog(
   required String title,
   required String message,
   required String confirmLabel,
-  String cancelLabel = 'Cancel',
+  required String cancelLabel,
 }) {
   return showDialog<bool>(
     context: context,

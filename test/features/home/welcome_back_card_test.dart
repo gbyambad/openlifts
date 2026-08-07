@@ -3,6 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:openlifts/features/home/application/welcome_back.dart';
 import 'package:openlifts/features/home/presentation/welcome_back_card.dart';
 
+import '../../support/test_app.dart';
+
 /// Pumps the card with recording callbacks. `applied` collects each applied
 /// percent; `dismissed` counts dismiss taps. Both are live references so
 /// assertions read state captured after the taps.
@@ -14,8 +16,8 @@ Future<({List<int> applied, List<void> dismissed})> _pumpCard(
   final applied = <int>[];
   final dismissed = <void>[];
   await tester.pumpWidget(
-    MaterialApp(
-      home: Scaffold(
+    wrapWithLocalizations(
+      Scaffold(
         body: WelcomeBackCard(
           suggestion: WelcomeBack(
             daysAway: daysAway,

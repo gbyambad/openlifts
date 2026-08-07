@@ -1,11 +1,12 @@
 import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:openlifts/core/database/app_database.dart';
 import 'package:openlifts/core/database/tables.dart';
 import 'package:openlifts/features/exercises/presentation/exercise_detail_screen.dart';
 import 'package:openlifts/features/progress/domain/lift_chart.dart';
+
+import '../../support/test_app.dart';
 
 void main() {
   late AppDatabase db;
@@ -32,9 +33,8 @@ void main() {
     final ex = await insertSquat();
 
     await tester.pumpWidget(
-      MaterialApp(
-        home:
-            ExerciseDetailView(exercise: ex, history: const [], unit: Unit.kg),
+      wrapWithLocalizations(
+        ExerciseDetailView(exercise: ex, history: const [], unit: Unit.kg),
       ),
     );
 
@@ -48,8 +48,8 @@ void main() {
     final ex = await insertSquat();
 
     await tester.pumpWidget(
-      MaterialApp(
-        home: ExerciseDetailView(
+      wrapWithLocalizations(
+        ExerciseDetailView(
           exercise: ex,
           history: [
             WeightPoint(date: DateTime(2026, 3, 2), weightKg: 60),

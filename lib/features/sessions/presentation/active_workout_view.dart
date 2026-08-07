@@ -10,6 +10,7 @@ import 'package:openlifts/features/sessions/application/active_workout_controlle
 import 'package:openlifts/features/sessions/presentation/weights_sheet.dart';
 import 'package:openlifts/features/workout/domain/plate_math.dart';
 import 'package:openlifts/features/workout/domain/warmup_calculator.dart';
+import 'package:openlifts/l10n/app_localizations.dart';
 
 /// Presentational active-workout UI. Pure (no providers/DB) so it is
 /// widget-testable directly with a fixed [WorkoutState] and callbacks.
@@ -144,12 +145,13 @@ class _ActiveWorkoutViewState extends State<ActiveWorkoutView>
   @override
   Widget build(BuildContext context) {
     final state = widget.state;
+    final loc = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
         title: state.days.length <= 1
             ? Text(state.dayName)
             : PopupMenuButton<String>(
-                tooltip: 'Switch workout',
+                tooltip: loc.switchWorkoutTooltip,
                 initialValue: state.dayId,
                 onSelected: widget.onSwitchDay,
                 itemBuilder: (context) => [
@@ -176,14 +178,14 @@ class _ActiveWorkoutViewState extends State<ActiveWorkoutView>
             style: TextButton.styleFrom(
               textStyle: AppTextStyles.of(context).appBarAction,
             ),
-            child: const Text('Finish'),
+            child: Text(loc.finish),
           ),
         ],
         bottom: TabBar(
           controller: _tabs,
           labelStyle: AppTextStyles.of(context).tabLabel,
           unselectedLabelStyle: AppTextStyles.of(context).tabLabelMuted,
-          tabs: const [Tab(text: 'Workout'), Tab(text: 'Warmup')],
+          tabs: [Tab(text: loc.workoutTab), Tab(text: loc.warmupTab)],
         ),
       ),
       body: TabBarView(
@@ -433,6 +435,7 @@ class _ProgressHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final loc = AppLocalizations.of(context)!;
     final complete = total > 0 && done == total;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 6),
@@ -442,7 +445,7 @@ class _ProgressHeader extends StatelessWidget {
           Row(
             children: [
               Text(
-                complete ? 'All sets logged' : '$done / $total sets',
+                complete ? loc.allSetsLogged : loc.setsProgress(done, total),
                 style: theme.textTheme.labelLarge?.copyWith(
                   color: complete
                       ? theme.colorScheme.primary
@@ -489,6 +492,7 @@ class _RestBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final loc = AppLocalizations.of(context)!;
     final mm = (remaining ~/ 60).toString();
     final ss = (remaining % 60).toString().padLeft(2, '0');
     return Container(
@@ -506,7 +510,7 @@ class _RestBar extends StatelessWidget {
               Text('$mm:$ss', style: theme.textTheme.headlineSmall),
               const SizedBox(width: 8),
               Text(
-                'Rest',
+                loc.restLabel,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
@@ -514,7 +518,7 @@ class _RestBar extends StatelessWidget {
               const Spacer(),
               TextButton(
                 onPressed: onDismiss,
-                child: const Text('Skip'),
+                child: Text(loc.skip),
               ),
             ],
           ),
@@ -567,8 +571,9 @@ class _BodyweightDialogState extends State<_BodyweightDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     return AlertDialog(
-      title: const Text('Log body weight'),
+      title: Text(loc.logBodyWeightTitle),
       content: TextField(
         controller: _controller,
         autofocus: true,
@@ -580,11 +585,11 @@ class _BodyweightDialogState extends State<_BodyweightDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
+          child: Text(loc.cancel),
         ),
         FilledButton(
           onPressed: _parsed == null ? null : _save,
-          child: const Text('Save'),
+          child: Text(loc.save),
         ),
       ],
     );
@@ -747,6 +752,7 @@ Future<void> _showExerciseInfo(BuildContext context, ActiveLift lift) {
     isScrollControlled: true,
     builder: (context) {
       final theme = Theme.of(context);
+      final loc = AppLocalizations.of(context)!;
       return SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(24, 4, 24, 24),
@@ -757,7 +763,7 @@ Future<void> _showExerciseInfo(BuildContext context, ActiveLift lift) {
               Text(lift.name, style: theme.textTheme.titleLarge),
               const SizedBox(height: 2),
               Text(
-                'How to perform',
+                loc.howToPerform,
                 style: theme.textTheme.labelLarge?.copyWith(
                   color: theme.colorScheme.primary,
                 ),
@@ -765,7 +771,7 @@ Future<void> _showExerciseInfo(BuildContext context, ActiveLift lift) {
               const SizedBox(height: 14),
               if (lift.instructions.isEmpty)
                 Text(
-                  'No instructions for this exercise yet.',
+                  loc.noInstructionsYet,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
@@ -1046,15 +1052,15 @@ class _WarmupTabState extends State<_WarmupTab> {
     }
   }
 
-  String _sideLabel(double weightKg) {
+  String _sideLabel(AppLocalizations loc, double weightKg) {
     final state = widget.state;
     final load = platesPerSide(
       displayWeight(weightKg, state.unit),
       displayWeight(state.barWeightKg, state.unit),
       platesFor(state.unit),
     );
-    if (load.perSide.isEmpty && load.leftover == 0) return 'empty bar';
-    return '${formatWeight(load.perSideTotal)} ${state.unit.name}/side';
+    if (load.perSide.isEmpty && load.leftover == 0) return loc.emptyBarLabel;
+    return loc.perSideLabel(formatWeight(load.perSideTotal), state.unit.name);
   }
 
   String _repsLabel(int reps, double weightKg) =>
@@ -1064,6 +1070,7 @@ class _WarmupTabState extends State<_WarmupTab> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final loc = AppLocalizations.of(context)!;
     final state = widget.state;
     if (_sectionKeys.length != state.lifts.length) {
       _sectionKeys
@@ -1095,7 +1102,7 @@ class _WarmupTabState extends State<_WarmupTab> {
                 ),
                 if (state.lifts[li].warmups.isEmpty)
                   Text(
-                    'No warmup needed — start with the working weight.',
+                    loc.noWarmupNeeded,
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
                     ),
@@ -1108,7 +1115,10 @@ class _WarmupTabState extends State<_WarmupTab> {
                         state.lifts[li].warmups[wi].reps,
                         state.lifts[li].warmups[wi].weightKg,
                       ),
-                      side: _sideLabel(state.lifts[li].warmups[wi].weightKg),
+                      side: _sideLabel(
+                        loc,
+                        state.lifts[li].warmups[wi].weightKg,
+                      ),
                       done: widget.doneWarmups.contains('$li-$wi'),
                       onTap: () => widget.onToggleWarmup('$li-$wi'),
                     ),
@@ -1121,6 +1131,7 @@ class _WarmupTabState extends State<_WarmupTab> {
                         state.lifts[li].workingSets.first.weightKg,
                       ),
                       side: _sideLabel(
+                        loc,
                         state.lifts[li].workingSets.first.weightKg,
                       ),
                       isWork: true,
@@ -1229,12 +1240,13 @@ class _BodyweightRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final loc = AppLocalizations.of(context)!;
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
       child: ListTile(
-        title: const Text('Body weight'),
+        title: Text(loc.bodyWeightLabel),
         trailing: currentKg == null
-            ? const Text('Log')
+            ? Text(loc.logAction)
             : Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [

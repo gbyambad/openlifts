@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:openlifts/features/programs/domain/set_scheme.dart';
+import 'package:openlifts/l10n/app_localizations.dart';
 
 /// A bottom sheet to edit an exercise's set scheme: sets, reps, and type
 /// (Straight / Top-Back-off / Ramp).
@@ -22,6 +23,7 @@ Future<void> showSetSchemeEditor(
     isScrollControlled: true,
     builder: (context) {
       final theme = Theme.of(context);
+      final loc = AppLocalizations.of(context)!;
       return StatefulBuilder(
         builder: (context, setSheet) => SingleChildScrollView(
           padding: EdgeInsets.fromLTRB(
@@ -34,15 +36,18 @@ Future<void> showSetSchemeEditor(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('$name — sets & reps', style: theme.textTheme.titleMedium),
+              Text(
+                loc.setSchemeSheetTitle(name),
+                style: theme.textTheme.titleMedium,
+              ),
               const SizedBox(height: 16),
               _StepperRow(
-                label: '$sets sets',
+                label: loc.setsCount(sets),
                 onDec: () => setSheet(() => sets = sets <= 1 ? 1 : sets - 1),
                 onInc: () => setSheet(() => sets = sets >= 10 ? 10 : sets + 1),
               ),
               _StepperRow(
-                label: '$reps reps',
+                label: loc.repsCount(reps),
                 onDec: () => setSheet(() => reps = reps <= 1 ? 1 : reps - 1),
                 onInc: () => setSheet(() => reps = reps >= 20 ? 20 : reps + 1),
               ),
@@ -56,7 +61,7 @@ Future<void> showSetSchemeEditor(
                         : Icons.radio_button_unchecked,
                     color: t == type ? theme.colorScheme.primary : null,
                   ),
-                  title: Text(t.label),
+                  title: Text(t.label(loc)),
                   onTap: () => setSheet(() => type = t),
                 ),
               const SizedBox(height: 12),
@@ -67,7 +72,7 @@ Future<void> showSetSchemeEditor(
                     onSave(type, sets, reps);
                     Navigator.pop(context);
                   },
-                  child: const Text('Save'),
+                  child: Text(loc.save),
                 ),
               ),
             ],

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:openlifts/core/database/tables.dart';
 import 'package:openlifts/features/backup/presentation/backup_actions.dart';
 import 'package:openlifts/features/settings/application/settings_providers.dart';
+import 'package:openlifts/l10n/app_localizations.dart';
 import 'package:openlifts/shared/widgets/async_view.dart';
 
 /// Settings, grouped into cards: workout preferences, appearance, and data.
@@ -12,8 +13,9 @@ class SettingsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final async = ref.watch(settingsProvider);
+    final loc = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(title: const Text('Settings')),
+      appBar: AppBar(title: Text(loc.settingsTitle)),
       body: AsyncView(
         value: async,
         data: (s) {
@@ -21,11 +23,11 @@ class SettingsScreen extends ConsumerWidget {
           return ListView(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
             children: [
-              const _SectionHeader('Preferences'),
+              _SectionHeader(loc.settingsSectionPreferences),
               _Card(
                 children: [
                   ListTile(
-                    title: const Text('Units'),
+                    title: Text(loc.settingsUnits),
                     trailing: SegmentedButton<Unit>(
                       segments: const [
                         ButtonSegment(value: Unit.kg, label: Text('kg')),
@@ -38,7 +40,7 @@ class SettingsScreen extends ConsumerWidget {
                   ),
                   const _Line(),
                   ListTile(
-                    title: const Text('Default rest'),
+                    title: Text(loc.settingsDefaultRest),
                     trailing: _MenuValue<int>(
                       value: _mmss(s.restTimerSeconds),
                       selected: s.restTimerSeconds,
@@ -49,7 +51,7 @@ class SettingsScreen extends ConsumerWidget {
                   ),
                   const _Line(),
                   ListTile(
-                    title: const Text('Bar weight'),
+                    title: Text(loc.settingsBarWeight),
                     trailing: _MenuValue<double>(
                       value: '${s.barWeightKg.toStringAsFixed(0)} kg',
                       selected: s.barWeightKg,
@@ -60,7 +62,7 @@ class SettingsScreen extends ConsumerWidget {
                   ),
                 ],
               ),
-              const _SectionHeader('Appearance'),
+              _SectionHeader(loc.settingsSectionAppearance),
               _Card(
                 children: [
                   Padding(
@@ -69,25 +71,25 @@ class SettingsScreen extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Theme',
+                          loc.settingsTheme,
                           style: Theme.of(context).textTheme.bodyLarge,
                         ),
                         const SizedBox(height: 12),
                         SizedBox(
                           width: double.infinity,
                           child: SegmentedButton<ThemeMode>(
-                            segments: const [
+                            segments: [
                               ButtonSegment(
                                 value: ThemeMode.system,
-                                label: Text('System'),
+                                label: Text(loc.system),
                               ),
                               ButtonSegment(
                                 value: ThemeMode.light,
-                                label: Text('Light'),
+                                label: Text(loc.themeLight),
                               ),
                               ButtonSegment(
                                 value: ThemeMode.dark,
-                                label: Text('Dark'),
+                                label: Text(loc.themeDark),
                               ),
                             ],
                             selected: {s.themeMode},
@@ -96,26 +98,54 @@ class SettingsScreen extends ConsumerWidget {
                                 ctrl.setThemeMode(sel.first),
                           ),
                         ),
+                        const SizedBox(height: 18),
+                        Text(
+                          loc.settingsLanguage,
+                          style: Theme.of(context).textTheme.bodyLarge,
+                        ),
+                        const SizedBox(height: 12),
+                        SizedBox(
+                          width: double.infinity,
+                          child: SegmentedButton<AppLanguage>(
+                            segments: [
+                              ButtonSegment(
+                                value: AppLanguage.system,
+                                label: Text(loc.system),
+                              ),
+                              const ButtonSegment(
+                                value: AppLanguage.mn,
+                                label: Text('Монгол'),
+                              ),
+                              const ButtonSegment(
+                                value: AppLanguage.en,
+                                label: Text('English'),
+                              ),
+                            ],
+                            selected: {s.languageMode},
+                            showSelectedIcon: false,
+                            onSelectionChanged: (sel) =>
+                                ctrl.setLanguageMode(sel.first),
+                          ),
+                        ),
                       ],
                     ),
                   ),
                 ],
               ),
-              const _SectionHeader('Your data'),
+              _SectionHeader(loc.settingsSectionYourData),
               _Card(
                 children: [
                   ListTile(
                     leading: const Icon(Icons.upload_file_outlined),
-                    title: const Text('Back up my data'),
-                    subtitle:
-                        const Text('Export everything to a file you keep'),
+                    title: Text(loc.settingsBackupTitle),
+                    subtitle: Text(loc.settingsBackupSubtitle),
                     onTap: () => exportBackup(context, ref),
                   ),
                   const _Line(),
                   ListTile(
                     leading: const Icon(Icons.download_outlined),
-                    title: const Text('Restore from backup'),
-                    subtitle: const Text('Replace all data with a backup file'),
+                    title: Text(loc.settingsRestoreTitle),
+                    subtitle: Text(loc.settingsRestoreSubtitle),
                     onTap: () => importBackup(context, ref),
                   ),
                 ],

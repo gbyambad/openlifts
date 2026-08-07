@@ -3,12 +3,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:openlifts/core/database/tables.dart';
 import 'package:openlifts/features/sessions/presentation/workout_summary_sheet.dart';
 
+import '../../support/test_app.dart';
+
 void main() {
   testWidgets('the completion summary shows sets logged and total volume',
       (tester) async {
     await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
+      wrapWithLocalizations(
+        Scaffold(
           body: Builder(
             builder: (context) => ElevatedButton(
               onPressed: () => showWorkoutSummary(
