@@ -1,6 +1,7 @@
 import 'package:openlifts/core/database/tables.dart';
 import 'package:openlifts/features/programs/domain/program_repository.dart';
 import 'package:openlifts/features/programs/domain/set_scheme.dart';
+import 'package:openlifts/l10n/app_localizations.dart';
 
 /// A program being built or edited in the UI, before it is persisted. Pure
 /// (no Drift/Riverpod) so the builder logic is unit-testable in isolation.
@@ -108,7 +109,7 @@ class DraftExercise {
   final int sets;
   final int reps;
 
-  String get summary => '$sets×$reps · ${type.label}';
+  String summary(AppLocalizations loc) => '$sets×$reps · ${type.label(loc)}';
 
   DraftExercise copyWith({SetSchemeType? type, int? sets, int? reps}) =>
       DraftExercise(

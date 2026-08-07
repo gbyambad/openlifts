@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:openlifts/features/sessions/application/active_workout_controller.dart';
 import 'package:openlifts/features/sessions/presentation/active_workout_view.dart';
 import 'package:openlifts/features/sessions/presentation/workout_summary_sheet.dart';
+import 'package:openlifts/l10n/app_localizations.dart';
 import 'package:openlifts/shared/widgets/confirm_dialog.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
@@ -39,13 +40,14 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
   @override
   Widget build(BuildContext context) {
     final dayId = widget.dayId;
+    final loc = AppLocalizations.of(context)!;
     final async = ref.watch(activeWorkoutControllerProvider(dayId));
     return async.when(
       loading: () =>
           const Scaffold(body: Center(child: CircularProgressIndicator())),
       error: (e, _) => Scaffold(
         appBar: AppBar(),
-        body: Center(child: Text('Could not start workout.\n$e')),
+        body: Center(child: Text(loc.couldNotStartWorkout('$e'))),
       ),
       data: (state) {
         // Guard an accidental back-out that would discard logged-but-unsaved
@@ -58,11 +60,10 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
             if (didPop) return;
             final leave = await showConfirmDialog(
               context,
-              title: 'Leave workout?',
-              message: 'Your logged sets will be discarded — '
-                  'finish the workout to save them.',
-              cancelLabel: 'Keep going',
-              confirmLabel: 'Leave',
+              title: loc.leaveWorkoutTitle,
+              message: loc.leaveWorkoutMessage,
+              cancelLabel: loc.keepGoing,
+              confirmLabel: loc.leave,
             );
             if (leave == true && context.mounted) context.pop();
           },
@@ -103,18 +104,17 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
     WidgetRef ref,
     WorkoutState state,
   ) async {
+    final loc = AppLocalizations.of(context)!;
     final allSets = [for (final l in state.lifts) ...l.workingSets];
     final unlogged = allSets.where((s) => !s.logged).length;
 
     if (unlogged > 0) {
       final proceed = await showConfirmDialog(
         context,
-        title: 'Finish workout?',
-        message:
-            '$unlogged ${unlogged == 1 ? 'set is' : 'sets are'} not logged. '
-            'Only logged sets are saved.',
-        cancelLabel: 'Keep going',
-        confirmLabel: 'Finish',
+        title: loc.finishWorkoutTitle,
+        message: loc.finishWorkoutMessage(unlogged),
+        cancelLabel: loc.keepGoing,
+        confirmLabel: loc.finish,
       );
       if (proceed != true) return;
     }

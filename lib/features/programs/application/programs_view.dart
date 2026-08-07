@@ -5,6 +5,7 @@ import 'package:openlifts/core/date/date_labels.dart';
 import 'package:openlifts/features/home/application/today_providers.dart';
 import 'package:openlifts/features/programs/application/program_providers.dart';
 import 'package:openlifts/features/settings/application/settings_providers.dart';
+import 'package:openlifts/l10n/app_localizations.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'programs_view.g.dart';
@@ -59,21 +60,22 @@ class ProgramsView {
   bool get isEmpty => active == null && custom.isEmpty && templates.isEmpty;
 }
 
-String _scheduleSummary(Program p) {
+String _scheduleSummary(AppLocalizations loc, Program p) {
   switch (p.scheduleMode) {
     case ScheduleMode.timesPerWeek:
-      return '${p.timesPerWeek ?? 3}×/week';
+      return loc.scheduleTimesPerWeek(p.timesPerWeek ?? 3);
     case ScheduleMode.everyNDays:
-      return 'every ${p.everyNDays ?? 2} days';
+      return loc.scheduleEveryNDays(p.everyNDays ?? 2);
     case ScheduleMode.fixedWeekdays:
       final days = p.weekdays;
-      if (days == null || days.isEmpty) return 'set days';
-      return days.map((d) => weekdayLabels[d - 1]).join(' · ');
+      if (days == null || days.isEmpty) return loc.scheduleSetDays;
+      return days.map((d) => weekdayShort(loc, d)).join(' · ');
   }
 }
 
 @riverpod
 Future<ProgramsView> programsView(Ref ref) async {
+  final loc = ref.watch(appLocalizationsProvider);
   final all = await ref.watch(programRepositoryProvider).all();
   final settings = await ref.watch(settingsRepositoryProvider).get();
   final activeId = settings.activeProgramId;
@@ -91,7 +93,7 @@ Future<ProgramsView> programsView(Ref ref) async {
   ProgramCard toCard(Program p) => ProgramCard(
         id: p.id,
         name: p.name,
-        scheduleSummary: _scheduleSummary(p),
+        scheduleSummary: _scheduleSummary(loc, p),
         isActive: p.id == activeId,
         isBuiltIn: p.isBuiltIn,
         tags: p.tags,
@@ -144,10 +146,11 @@ class ProgramsController extends _$ProgramsController {
     final program = await repo.findById(programId);
     if (program == null) throw StateError('No program with id $programId');
     final newId = 'custom-${DateTime.now().millisecondsSinceEpoch}';
+    final loc = ref.read(appLocalizationsProvider);
     await repo.copyAsCustom(
       programId,
       newId: newId,
-      newName: '${program.name} (Copy)',
+      newName: loc.duplicateProgramName(program.name),
     );
     ref.invalidate(programsViewProvider);
     return newId;

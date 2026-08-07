@@ -10,6 +10,7 @@ import 'package:openlifts/features/programs/application/programs_view.dart';
 import 'package:openlifts/features/programs/domain/set_scheme.dart';
 import 'package:openlifts/features/programs/presentation/program_schedule_sheet.dart';
 import 'package:openlifts/features/programs/presentation/set_scheme_sheet.dart';
+import 'package:openlifts/l10n/app_localizations.dart';
 import 'package:openlifts/shared/widgets/async_view.dart';
 import 'package:openlifts/shared/widgets/confirm_dialog.dart';
 import 'package:openlifts/shared/widgets/empty_state.dart';
@@ -22,21 +23,25 @@ class ProgramsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     return DefaultTabController(
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Programs'),
+          title: Text(loc.navPrograms),
           actions: [
             TextButton(
               onPressed: () => context.push('/programs/new'),
-              child: const Text('Create'),
+              child: Text(loc.create),
             ),
           ],
           bottom: TabBar(
             labelStyle: AppTextStyles.of(context).tabLabel,
             unselectedLabelStyle: AppTextStyles.of(context).tabLabelMuted,
-            tabs: const [Tab(text: 'Programs'), Tab(text: 'Weights')],
+            tabs: [
+              Tab(text: loc.navPrograms),
+              Tab(text: loc.programsWeightsTab),
+            ],
           ),
         ),
         body: const TabBarView(
@@ -52,12 +57,13 @@ class _ProgramsList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final loc = AppLocalizations.of(context)!;
     return AsyncView(
       value: ref.watch(programsViewProvider),
       data: (view) {
         if (view.isEmpty) {
-          return const EmptyState(
-            'No programs yet.\nTap Create to build one.',
+          return EmptyState(
+            loc.programsEmptyMessage,
             icon: Icons.list_alt_outlined,
           );
         }
@@ -69,11 +75,11 @@ class _ProgramsList extends ConsumerWidget {
             else
               const _NoActiveBanner(),
             if (view.custom.isNotEmpty) ...[
-              const _SectionHeader('My programs'),
+              _SectionHeader(loc.programsSectionMine),
               for (final c in view.custom) _ProgramRow(card: c),
             ],
             if (view.templates.isNotEmpty) ...[
-              const _SectionHeader('Templates'),
+              _SectionHeader(loc.programsSectionTemplates),
               for (final c in view.templates) _ProgramRow(card: c),
             ],
           ],
@@ -86,11 +92,12 @@ class _ProgramsList extends ConsumerWidget {
 /// Opens the day-picker to activate [card] (or, for the active program, to
 /// change its schedule) and shows a confirmation.
 Future<void> _activate(BuildContext context, WidgetRef ref, ProgramCard card) {
+  final loc = AppLocalizations.of(context)!;
   final messenger = ScaffoldMessenger.of(context);
   return showScheduleSheet(
     context,
     title: card.name,
-    ctaLabel: card.isActive ? 'Update schedule' : 'Use this program',
+    ctaLabel: card.isActive ? loc.scheduleUpdateCta : loc.scheduleUseCta,
     initialWeekdays: card.weekdays,
     onConfirm: (weekdays) async {
       await ref
@@ -99,7 +106,9 @@ Future<void> _activate(BuildContext context, WidgetRef ref, ProgramCard card) {
       messenger.showSnackBar(
         SnackBar(
           content: Text(
-            card.isActive ? 'Schedule updated' : '${card.name} is now active',
+            card.isActive
+                ? loc.scheduleUpdatedMessage
+                : loc.programNowActiveMessage(card.name),
           ),
         ),
       );
@@ -118,6 +127,7 @@ class _CurrentProgramCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
+    final loc = AppLocalizations.of(context)!;
     // Light: a clean near-white surface (the tinted fill read as muddy on the
     // warm paper ground). Dark: keep the subtle primary tint, which reads well.
     final fill = theme.brightness == Brightness.light
@@ -139,7 +149,7 @@ class _CurrentProgramCard extends ConsumerWidget {
               children: [
                 Expanded(
                   child: Text(
-                    'CURRENT PROGRAM',
+                    loc.currentProgramLabel.toUpperCase(),
                     style: theme.textTheme.labelSmall?.copyWith(
                       color: scheme.primary,
                       fontWeight: FontWeight.w700,
@@ -168,7 +178,7 @@ class _CurrentProgramCard extends ConsumerWidget {
                   Icon(Icons.play_arrow, size: 16, color: scheme.primary),
                   const SizedBox(width: 6),
                   Text(
-                    'Next: ${card.nextWorkout}',
+                    loc.nextWorkoutLabel(card.nextWorkout!),
                     style: theme.textTheme.bodyMedium,
                   ),
                 ],
@@ -181,7 +191,7 @@ class _CurrentProgramCard extends ConsumerWidget {
                   child: FilledButton.icon(
                     onPressed: () => context.go('/today'),
                     icon: const Icon(Icons.fitness_center, size: 18),
-                    label: const Text('Start', maxLines: 1),
+                    label: Text(loc.start, maxLines: 1),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -189,7 +199,7 @@ class _CurrentProgramCard extends ConsumerWidget {
                   child: OutlinedButton.icon(
                     onPressed: () => _activate(context, ref, card),
                     icon: const Icon(Icons.edit_calendar_outlined, size: 18),
-                    label: const Text('Schedule', maxLines: 1),
+                    label: Text(loc.schedule, maxLines: 1),
                   ),
                 ),
               ],
@@ -220,7 +230,7 @@ class _NoActiveBanner extends StatelessWidget {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'No active program. Pick one below to start training.',
+              AppLocalizations.of(context)!.noActiveProgramBanner,
               style: theme.textTheme.bodyMedium,
             ),
           ),
@@ -284,7 +294,7 @@ class _ProgramRow extends ConsumerWidget {
         children: [
           _ProgramMenu(card: card),
           IconButton(
-            tooltip: 'Details',
+            tooltip: AppLocalizations.of(context)!.detailsTooltip,
             icon: const Icon(Icons.chevron_right),
             onPressed: () => context.push('/programs/${card.id}'),
           ),
@@ -304,22 +314,24 @@ class _ProgramMenu extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final loc = AppLocalizations.of(context)!;
     return PopupMenuButton<String>(
       onSelected: (action) => _run(context, ref, action),
       itemBuilder: (context) => [
-        const PopupMenuItem(
+        PopupMenuItem(
           value: 'duplicate',
-          child: Text('Duplicate & customize'),
+          child: Text(loc.duplicateAndCustomize),
         ),
         if (!card.isBuiltIn) ...[
-          const PopupMenuItem(value: 'edit', child: Text('Edit')),
-          const PopupMenuItem(value: 'delete', child: Text('Delete')),
+          PopupMenuItem(value: 'edit', child: Text(loc.edit)),
+          PopupMenuItem(value: 'delete', child: Text(loc.delete)),
         ],
       ],
     );
   }
 
   Future<void> _run(BuildContext context, WidgetRef ref, String action) async {
+    final loc = AppLocalizations.of(context)!;
     final controller = ref.read(programsControllerProvider.notifier);
     final router = GoRouter.of(context);
     switch (action) {
@@ -331,9 +343,10 @@ class _ProgramMenu extends ConsumerWidget {
       case 'delete':
         final confirmed = await showConfirmDialog(
           context,
-          title: 'Delete "${card.name}"?',
-          message: 'This removes the program. It cannot be undone.',
-          confirmLabel: 'Delete',
+          title: loc.deleteProgramConfirmTitle(card.name),
+          message: loc.deleteProgramConfirmMessage,
+          confirmLabel: loc.delete,
+          cancelLabel: loc.cancel,
         );
         if (confirmed ?? false) await controller.deleteProgram(card.id);
     }
@@ -364,11 +377,12 @@ class _WeightsTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final loc = AppLocalizations.of(context)!;
     return AsyncView(
       value: ref.watch(programWeightsProvider),
       data: (weights) => weights == null
-          ? const EmptyState(
-              'No active program yet.\nPick one in the Programs tab.',
+          ? EmptyState(
+              loc.todayEmptyMessage,
               icon: Icons.fitness_center,
             )
           : ListView(
@@ -390,7 +404,8 @@ class _WeightsTab extends ConsumerWidget {
                         e.name,
                         style: AppTextStyles.of(context).cardTitle,
                       ),
-                      subtitle: Text('${e.sets}×${e.reps} · ${e.type.label}'),
+                      subtitle:
+                          Text('${e.sets}×${e.reps} · ${e.type.label(loc)}'),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -399,7 +414,7 @@ class _WeightsTab extends ConsumerWidget {
                             style: Theme.of(context).textTheme.titleMedium,
                           ),
                           IconButton(
-                            tooltip: 'Sets & reps',
+                            tooltip: loc.setsRepsTooltip,
                             icon: const Icon(Icons.tune),
                             onPressed: () => showSetSchemeEditor(
                               context,

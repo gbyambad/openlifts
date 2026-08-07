@@ -6,6 +6,7 @@ import 'package:openlifts/core/database/tables.dart';
 import 'package:openlifts/core/units/units.dart';
 import 'package:openlifts/features/progress/application/progress_view.dart';
 import 'package:openlifts/features/progress/domain/lift_chart.dart';
+import 'package:openlifts/l10n/app_localizations.dart';
 import 'package:openlifts/shared/widgets/async_view.dart';
 import 'package:openlifts/shared/widgets/empty_state.dart';
 
@@ -16,7 +17,7 @@ class ProgressScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Progress')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.progressTitle)),
       body: AsyncView(
         value: ref.watch(progressViewProvider),
         data: (d) => ProgressView(
@@ -49,9 +50,10 @@ class ProgressView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     if (charts.isEmpty && bodyweight.isEmpty) {
-      return const EmptyState(
-        'No workouts logged yet.\nFinish a workout to see your progress.',
+      return EmptyState(
+        loc.progressEmptyMessage,
         icon: Icons.insights_outlined,
       );
     }
@@ -68,7 +70,11 @@ class ProgressView extends StatelessWidget {
                 onOpenLift == null ? null : () => onOpenLift!(chart.exerciseId),
           ),
         if (bodyweight.isNotEmpty)
-          _ChartCard(title: 'Bodyweight', points: bodyweight, unit: unit),
+          _ChartCard(
+            title: loc.bodyweightChartTitle,
+            points: bodyweight,
+            unit: unit,
+          ),
       ],
     );
   }
@@ -125,7 +131,7 @@ class _ChartCard extends StatelessWidget {
                 child: spots.length < 2
                     ? Center(
                         child: Text(
-                          'Log one more session to see a trend.',
+                          AppLocalizations.of(context)!.logMoreToSeeTrend,
                           style: theme.textTheme.bodySmall,
                         ),
                       )

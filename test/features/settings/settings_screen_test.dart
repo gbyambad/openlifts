@@ -9,6 +9,8 @@ import 'package:openlifts/features/settings/application/settings_providers.dart'
 import 'package:openlifts/features/settings/data/settings_repository_impl.dart';
 import 'package:openlifts/features/settings/presentation/settings_screen.dart';
 
+import '../../support/test_app.dart';
+
 void main() {
   testWidgets('renders units toggle and deferred backup rows', (tester) async {
     const setting = Setting(
@@ -18,6 +20,7 @@ void main() {
       restTimerSeconds: 180,
       seedVersion: 0,
       themeMode: ThemeMode.dark,
+      languageMode: AppLanguage.system,
     );
 
     await tester.pumpWidget(
@@ -25,7 +28,7 @@ void main() {
         overrides: [
           settingsProvider.overrideWith((ref) => Stream.value(setting)),
         ],
-        child: const MaterialApp(home: SettingsScreen()),
+        child: wrapWithLocalizations(const SettingsScreen()),
       ),
     );
     await tester.pumpAndSettle();
@@ -50,6 +53,7 @@ void main() {
     restTimerSeconds: 180,
     seedVersion: 0,
     themeMode: ThemeMode.dark,
+    languageMode: AppLanguage.system,
   );
 
   Future<AppDatabase> pumpSettings(WidgetTester tester) async {
@@ -63,7 +67,7 @@ void main() {
           appDatabaseProvider.overrideWithValue(db),
           settingsProvider.overrideWith((ref) => Stream.value(kg)),
         ],
-        child: const MaterialApp(home: SettingsScreen()),
+        child: wrapWithLocalizations(const SettingsScreen()),
       ),
     );
     await tester.pumpAndSettle();

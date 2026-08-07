@@ -5,6 +5,8 @@ import 'package:openlifts/features/programs/application/program_weights.dart';
 import 'package:openlifts/features/programs/application/programs_view.dart';
 import 'package:openlifts/features/programs/presentation/programs_screen.dart';
 
+import '../../support/test_app.dart';
+
 Future<void> _pump(WidgetTester tester, ProgramsView view) {
   return tester.pumpWidget(
     ProviderScope(
@@ -12,7 +14,7 @@ Future<void> _pump(WidgetTester tester, ProgramsView view) {
         programsViewProvider.overrideWith((ref) => view),
         programWeightsProvider.overrideWith((ref) => null),
       ],
-      child: const MaterialApp(home: ProgramsScreen()),
+      child: wrapWithLocalizations(const ProgramsScreen()),
     ),
   );
 }

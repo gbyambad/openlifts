@@ -20,6 +20,11 @@ dependencies:
   # Navigation
   go_router: ^17.3.0
 
+  # Localization (Mongolian + English)
+  flutter_localizations:
+    sdk: flutter
+  intl: any
+
   # Immutable models (codegen)
   freezed_annotation: ^3.1.0
   json_annotation: ^4.9.0
@@ -63,6 +68,7 @@ flutter_launcher_icons:
 
 flutter:
   uses-material-design: true
+  generate: true
   assets:
     - assets/brand/
     - assets/seed/

@@ -6,6 +6,8 @@ import 'package:openlifts/features/sessions/application/active_workout_controlle
 import 'package:openlifts/features/sessions/presentation/active_workout_view.dart';
 import 'package:openlifts/features/workout/domain/warmup_calculator.dart';
 
+import '../../support/test_app.dart';
+
 // Wrapped in reduced-motion so the cursor's repeating heartbeat pulse doesn't
 // keep pumpAndSettle spinning; it also exercises the static-glow path.
 Widget _view(
@@ -75,8 +77,8 @@ void main() {
 
     final tapped = <List<int>>[];
     await tester.pumpWidget(
-      MaterialApp(
-        home: _view(state, onCycleSet: (li, si) => tapped.add([li, si])),
+      wrapWithLocalizations(
+        _view(state, onCycleSet: (li, si) => tapped.add([li, si])),
       ),
     );
 
@@ -116,7 +118,7 @@ void main() {
       ],
     );
 
-    await tester.pumpWidget(MaterialApp(home: _view(state)));
+    await tester.pumpWidget(wrapWithLocalizations(_view(state)));
 
     // The card carries no per-set controls: adding/removing/editing sets all
     // live in the weights sheet, opened from the header weight.
@@ -151,7 +153,7 @@ void main() {
       ],
     );
 
-    await tester.pumpWidget(MaterialApp(home: _view(state)));
+    await tester.pumpWidget(wrapWithLocalizations(_view(state)));
 
     // Tap the header weight label (e.g. "5×60 kg") to open the sheet.
     await tester.tap(find.text('5×60 kg'));
@@ -190,8 +192,8 @@ void main() {
     final applied = <List<num>>[];
     final added = <int>[];
     await tester.pumpWidget(
-      MaterialApp(
-        home: _view(
+      wrapWithLocalizations(
+        _view(
           state,
           onSetWeight: (li, kg) => applied.add([li, kg]),
           onAddSet: added.add,
@@ -235,7 +237,7 @@ void main() {
       ],
     );
 
-    await tester.pumpWidget(MaterialApp(home: _view(state)));
+    await tester.pumpWidget(wrapWithLocalizations(_view(state)));
 
     expect(find.text('Body weight'), findsOneWidget);
     expect(find.byIcon(Icons.monitor_weight_outlined), findsNothing);
@@ -265,7 +267,7 @@ void main() {
       ],
     );
 
-    await tester.pumpWidget(MaterialApp(home: _view(state)));
+    await tester.pumpWidget(wrapWithLocalizations(_view(state)));
 
     BoxDecoration cellFor(String reps) => tester
         .widget<Container>(
@@ -305,7 +307,7 @@ void main() {
       ],
     );
 
-    await tester.pumpWidget(MaterialApp(home: _view(state)));
+    await tester.pumpWidget(wrapWithLocalizations(_view(state)));
 
     expect(find.text('1 / 2 sets'), findsOneWidget);
   });
@@ -333,7 +335,7 @@ void main() {
       ],
     );
 
-    await tester.pumpWidget(MaterialApp(home: _view(state)));
+    await tester.pumpWidget(wrapWithLocalizations(_view(state)));
 
     expect(find.text('All sets logged'), findsOneWidget);
     expect(find.byIcon(Icons.check_circle), findsWidgets);
@@ -360,7 +362,7 @@ void main() {
       ],
     );
 
-    await tester.pumpWidget(MaterialApp(home: _view(state)));
+    await tester.pumpWidget(wrapWithLocalizations(_view(state)));
 
     expect(find.text('Body weight'), findsOneWidget);
     expect(find.text('72.5 kg'), findsOneWidget);
@@ -391,7 +393,7 @@ void main() {
       ],
     );
 
-    await tester.pumpWidget(MaterialApp(home: _view(state)));
+    await tester.pumpWidget(wrapWithLocalizations(_view(state)));
     await tester.tap(find.text('Warmup'));
     await tester.pumpAndSettle();
 
@@ -430,7 +432,7 @@ void main() {
       ],
     );
 
-    await tester.pumpWidget(MaterialApp(home: _view(state)));
+    await tester.pumpWidget(wrapWithLocalizations(_view(state)));
     await tester.tap(find.text('Warmup'));
     await tester.pumpAndSettle();
     expect(_currentTab(tester), 1);
@@ -476,7 +478,7 @@ void main() {
       ],
     );
 
-    await tester.pumpWidget(MaterialApp(home: _view(state)));
+    await tester.pumpWidget(wrapWithLocalizations(_view(state)));
     await tester.tap(find.text('Warmup'));
     await tester.pumpAndSettle();
     expect(_currentTab(tester), 1);
@@ -512,8 +514,8 @@ void main() {
 
     // Three warmups so checking one doesn't auto-jump to the Workout tab.
     await tester.pumpWidget(
-      MaterialApp(
-        home: _view(
+      wrapWithLocalizations(
+        _view(
           stateWith(const [
             WarmupSet(weightKg: 20, reps: 5),
             WarmupSet(weightKg: 40, reps: 5),
@@ -530,8 +532,8 @@ void main() {
 
     // A working-weight change reshapes the ramp -> the old mark must clear.
     await tester.pumpWidget(
-      MaterialApp(
-        home: _view(
+      wrapWithLocalizations(
+        _view(
           stateWith(const [
             WarmupSet(weightKg: 25, reps: 5),
             WarmupSet(weightKg: 45, reps: 5),
@@ -576,8 +578,8 @@ void main() {
 
     // Squat not yet done.
     await tester.pumpWidget(
-      MaterialApp(
-        home: _view(
+      wrapWithLocalizations(
+        _view(
           WorkoutState(
             dayId: 'a',
             dayName: 'A',
@@ -593,8 +595,8 @@ void main() {
 
     // Squat's set becomes logged -> nudge to Warmup for Bench.
     await tester.pumpWidget(
-      MaterialApp(
-        home: _view(
+      wrapWithLocalizations(
+        _view(
           WorkoutState(
             dayId: 'a',
             dayName: 'A',
@@ -643,8 +645,8 @@ void main() {
     );
 
     await tester.pumpWidget(
-      MaterialApp(
-        home: _view(
+      wrapWithLocalizations(
+        _view(
           WorkoutState(
             dayId: 'a',
             dayName: 'A',
@@ -660,8 +662,8 @@ void main() {
 
     // Squat's set becomes logged -> stay on Workout (deadlift needs no warmup).
     await tester.pumpWidget(
-      MaterialApp(
-        home: _view(
+      wrapWithLocalizations(
+        _view(
           WorkoutState(
             dayId: 'a',
             dayName: 'A',
@@ -699,7 +701,7 @@ void main() {
       ],
     );
 
-    await tester.pumpWidget(MaterialApp(home: _view(state)));
+    await tester.pumpWidget(wrapWithLocalizations(_view(state)));
 
     await tester.tap(find.text('5')); // log the (unlogged) set -> starts rest
     await tester.pump();
@@ -739,7 +741,7 @@ void main() {
       ],
     );
 
-    await tester.pumpWidget(MaterialApp(home: _view(state)));
+    await tester.pumpWidget(wrapWithLocalizations(_view(state)));
     await tester.pump();
 
     // A RenderFlex overflow surfaces as a thrown FlutterError during layout.
@@ -773,7 +775,7 @@ void main() {
       _phoneSurface(tester);
       final logged = <double>[];
       await tester.pumpWidget(
-        MaterialApp(home: _view(state, onLogBodyweight: logged.add)),
+        wrapWithLocalizations(_view(state, onLogBodyweight: logged.add)),
       );
 
       await tester.tap(find.text('Body weight'));
@@ -791,7 +793,7 @@ void main() {
       _phoneSurface(tester);
       final logged = <double>[];
       await tester.pumpWidget(
-        MaterialApp(home: _view(state, onLogBodyweight: logged.add)),
+        wrapWithLocalizations(_view(state, onLogBodyweight: logged.add)),
       );
 
       await tester.tap(find.text('Body weight'));
@@ -808,7 +810,7 @@ void main() {
     testWidgets('Save is disabled until a valid weight is entered',
         (tester) async {
       _phoneSurface(tester);
-      await tester.pumpWidget(MaterialApp(home: _view(state)));
+      await tester.pumpWidget(wrapWithLocalizations(_view(state)));
 
       await tester.tap(find.text('Body weight'));
       await tester.pumpAndSettle();
@@ -856,7 +858,7 @@ void main() {
 
     // Both lifts have an unlogged set, but only one cursor shows (the current).
     await tester.pumpWidget(
-      MaterialApp(home: _view(stateWith(firstDone: false))),
+      wrapWithLocalizations(_view(stateWith(firstDone: false))),
     );
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('cursorSet')), findsOneWidget);
@@ -864,7 +866,7 @@ void main() {
 
     // Finish the first lift -> the single cursor moves to the second.
     await tester.pumpWidget(
-      MaterialApp(home: _view(stateWith(firstDone: true))),
+      wrapWithLocalizations(_view(stateWith(firstDone: true))),
     );
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('cursorSet')), findsOneWidget);
@@ -910,7 +912,7 @@ void main() {
           ],
         );
 
-    await tester.pumpWidget(MaterialApp(home: _view(stateWith(0))));
+    await tester.pumpWidget(wrapWithLocalizations(_view(stateWith(0))));
     await tester.pumpAndSettle();
     final before = tester
         .widget<SingleChildScrollView>(
@@ -920,7 +922,7 @@ void main() {
         .offset;
 
     // Finish the first five -> current lift is the last, well below the fold.
-    await tester.pumpWidget(MaterialApp(home: _view(stateWith(5))));
+    await tester.pumpWidget(wrapWithLocalizations(_view(stateWith(5))));
     await tester.pumpAndSettle();
     final after = tester
         .widget<SingleChildScrollView>(
@@ -972,7 +974,7 @@ void main() {
       ],
     );
 
-    await tester.pumpWidget(MaterialApp(home: _view(state)));
+    await tester.pumpWidget(wrapWithLocalizations(_view(state)));
     await tester.pumpAndSettle();
 
     ScrollController warmupScroll() => tester

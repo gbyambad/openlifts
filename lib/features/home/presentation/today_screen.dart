@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:openlifts/features/home/application/today_providers.dart';
 import 'package:openlifts/features/home/application/welcome_back.dart';
 import 'package:openlifts/features/home/presentation/welcome_back_card.dart';
+import 'package:openlifts/l10n/app_localizations.dart';
 import 'package:openlifts/shared/widgets/async_view.dart';
 import 'package:openlifts/shared/widgets/empty_state.dart';
 
@@ -28,8 +29,8 @@ class TodayScreen extends ConsumerWidget {
       body: AsyncView(
         value: ref.watch(todayProvider),
         data: (view) => view == null || view.workouts.isEmpty
-            ? const EmptyState(
-                'No active program yet.\nPick one in the Programs tab.',
+            ? EmptyState(
+                AppLocalizations.of(context)!.todayEmptyMessage,
                 icon: Icons.fitness_center,
               )
             : _Home(view: view),
@@ -82,7 +83,7 @@ class _Home extends ConsumerWidget {
             width: double.infinity,
             child: FilledButton(
               onPressed: () => context.go('/today/workout/${next.dayId}'),
-              child: const Text('Start workout'),
+              child: Text(AppLocalizations.of(context)!.startWorkout),
             ),
           ),
         ),

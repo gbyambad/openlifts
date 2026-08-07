@@ -5,6 +5,7 @@ import 'package:openlifts/core/providers/database_provider.dart';
 import 'package:openlifts/features/programs/application/programs_view.dart';
 import 'package:openlifts/features/settings/data/settings_repository_impl.dart';
 
+import '../../support/test_app.dart';
 import '../../support/test_database.dart';
 
 /// Reproduces the "unresponsive Programs actions" crash surfaced on the
@@ -34,7 +35,7 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [appDatabaseProvider.overrideWithValue(db)],
-        child: const MaterialApp(home: Scaffold(body: _Harness())),
+        child: wrapWithLocalizations(const Scaffold(body: _Harness())),
       ),
     );
     await tester.pumpAndSettle();

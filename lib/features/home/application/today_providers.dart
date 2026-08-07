@@ -9,6 +9,7 @@ import 'package:openlifts/features/progression/application/progression_providers
 import 'package:openlifts/features/progression/domain/default_anchor.dart';
 import 'package:openlifts/features/sessions/application/session_providers.dart';
 import 'package:openlifts/features/settings/application/settings_providers.dart';
+import 'package:openlifts/l10n/app_localizations.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'today_providers.g.dart';
@@ -53,6 +54,7 @@ class PlannedExercise {
 
 @riverpod
 Future<TodayView?> today(Ref ref) async {
+  final loc = ref.watch(appLocalizationsProvider);
   final settings = await ref.watch(settingsRepositoryProvider).get();
   final programId = settings.activeProgramId;
   if (programId == null) return null;
@@ -117,7 +119,7 @@ Future<TodayView?> today(Ref ref) async {
       PlannedWorkout(
         dayId: day.day.id,
         dayName: day.day.name,
-        dateLabel: _dateLabel(from, upcoming[i].date),
+        dateLabel: _dateLabel(loc, from, upcoming[i].date),
         exercises: exercises,
         isNext: i == 0,
       ),
@@ -152,10 +154,10 @@ String _scheme(List<SetGroup> groups, double anchor, Unit unit) {
   return parts.join(', ');
 }
 
-String _dateLabel(DateTime from, DateTime date) {
+String _dateLabel(AppLocalizations loc, DateTime from, DateTime date) {
   final days = date.difference(from).inDays;
-  if (days <= 0) return 'Today';
-  if (days == 1) return 'Tomorrow';
-  final weekday = weekdayLabels[date.weekday - 1];
-  return '$weekday, ${monthLabels[date.month - 1]} ${date.day}';
+  if (days <= 0) return loc.today;
+  if (days == 1) return loc.tomorrow;
+  final weekday = weekdayShort(loc, date.weekday);
+  return '$weekday, ${monthShort(loc, date.month)} ${date.day}';
 }

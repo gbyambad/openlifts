@@ -1,14 +1,15 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:openlifts/core/database/tables.dart';
 import 'package:openlifts/features/progress/domain/lift_chart.dart';
 import 'package:openlifts/features/progress/presentation/progress_screen.dart';
 
+import '../../support/test_app.dart';
+
 void main() {
   testWidgets('shows an empty state when nothing is logged', (tester) async {
     await tester.pumpWidget(
-      const MaterialApp(
-        home: ProgressView(charts: [], bodyweight: [], unit: Unit.kg),
+      wrapWithLocalizations(
+        const ProgressView(charts: [], bodyweight: [], unit: Unit.kg),
       ),
     );
 
@@ -28,8 +29,8 @@ void main() {
     ];
 
     await tester.pumpWidget(
-      MaterialApp(
-        home: ProgressView(charts: charts, bodyweight: const [], unit: Unit.kg),
+      wrapWithLocalizations(
+        ProgressView(charts: charts, bodyweight: const [], unit: Unit.kg),
       ),
     );
 

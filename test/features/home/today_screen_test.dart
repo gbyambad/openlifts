@@ -1,9 +1,10 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:openlifts/core/database/tables.dart';
 import 'package:openlifts/features/home/application/today_providers.dart';
 import 'package:openlifts/features/home/presentation/today_screen.dart';
+
+import '../../support/test_app.dart';
 
 void main() {
   testWidgets('renders the day lifts and a Start button', (tester) async {
@@ -27,7 +28,7 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [todayProvider.overrideWith((ref) => view)],
-        child: const MaterialApp(home: TodayScreen()),
+        child: wrapWithLocalizations(const TodayScreen()),
       ),
     );
     await tester.pumpAndSettle();
@@ -41,7 +42,7 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [todayProvider.overrideWith((ref) => null)],
-        child: const MaterialApp(home: TodayScreen()),
+        child: wrapWithLocalizations(const TodayScreen()),
       ),
     );
     await tester.pumpAndSettle();

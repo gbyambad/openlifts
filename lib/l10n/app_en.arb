@@ -1,0 +1,312 @@
+{
+  "@@locale": "en",
+  "cancel": "Cancel",
+  "@cancel": {
+    "description": "Generic cancel button label"
+  },
+  "startupFailed": "Startup failed. Please restart.",
+  "@startupFailed": {
+    "description": "Shown if the app's startup seeding fails"
+  },
+
+  "system": "System",
+  "@system": {
+    "description": "Generic 'follow system default' option, used for both theme and language pickers"
+  },
+
+  "settingsTitle": "Settings",
+  "settingsSectionPreferences": "Preferences",
+  "settingsUnits": "Units",
+  "settingsDefaultRest": "Default rest",
+  "settingsBarWeight": "Bar weight",
+  "settingsSectionAppearance": "Appearance",
+  "settingsTheme": "Theme",
+  "themeLight": "Light",
+  "themeDark": "Dark",
+  "settingsLanguage": "Language",
+  "settingsSectionYourData": "Your data",
+  "settingsBackupTitle": "Back up my data",
+  "settingsBackupSubtitle": "Export everything to a file you keep",
+  "settingsRestoreTitle": "Restore from backup",
+  "settingsRestoreSubtitle": "Replace all data with a backup file",
+
+  "navToday": "Today",
+  "navHistory": "History",
+  "navProgress": "Progress",
+  "navPrograms": "Programs",
+  "navSettings": "Settings",
+
+  "errorGeneric": "Something went wrong.\n{error}",
+  "@errorGeneric": {
+    "description": "Generic error state shown when an AsyncValue fails to load",
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+
+  "today": "Today",
+  "tomorrow": "Tomorrow",
+  "weekdayMon": "Mon",
+  "weekdayTue": "Tue",
+  "weekdayWed": "Wed",
+  "weekdayThu": "Thu",
+  "weekdayFri": "Fri",
+  "weekdaySat": "Sat",
+  "weekdaySun": "Sun",
+  "monthJan": "Jan",
+  "monthFeb": "Feb",
+  "monthMar": "Mar",
+  "monthApr": "Apr",
+  "monthMay": "May",
+  "monthJun": "Jun",
+  "monthJul": "Jul",
+  "monthAug": "Aug",
+  "monthSep": "Sep",
+  "monthOct": "Oct",
+  "monthNov": "Nov",
+  "monthDec": "Dec",
+
+  "scheduleTimesPerWeek": "{count}×/week",
+  "@scheduleTimesPerWeek": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "scheduleEveryNDays": "every {count} days",
+  "@scheduleEveryNDays": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "scheduleSetDays": "set days",
+
+  "setSchemeStraight": "Straight sets",
+  "setSchemeTopBackoff": "Top / Back-off",
+  "setSchemeRamp": "Ramp",
+
+  "save": "Save",
+
+  "setSchemeSheetTitle": "{name} — sets & reps",
+  "@setSchemeSheetTitle": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "setsCount": "{count, plural, one {{count} set} other {{count} sets}}",
+  "@setsCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "repsCount": "{count, plural, one {{count} rep} other {{count} reps}}",
+  "@repsCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+
+  "duplicateProgramName": "{name} (Copy)",
+  "@duplicateProgramName": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+
+  "todayEmptyMessage": "No active program yet.\nPick one in the Programs tab.",
+  "startWorkout": "Start workout",
+  "welcomeBackTitle": "Welcome back",
+  "welcomeBackMessage": "{weeks, plural, one {It's been about 1 week. Ease back in with lighter weights to rebuild form and avoid soreness.} other {It's been about {weeks} weeks. Ease back in with lighter weights to rebuild form and avoid soreness.}}",
+  "@welcomeBackMessage": {
+    "placeholders": {
+      "weeks": {"type": "int"}
+    }
+  },
+  "deload": "Deload",
+  "keepWeights": "Keep weights",
+  "applyDeload": "Apply deload",
+
+  "historyTitle": "History",
+  "historyEmptyMessage": "No workouts yet.\nFinished workouts show up here.",
+  "historyVolume": "{value} {unit} vol",
+  "@historyVolume": {
+    "placeholders": {
+      "value": {"type": "String"},
+      "unit": {"type": "String"}
+    }
+  },
+  "couldNotLoadExercises": "Couldn't load exercises.",
+
+  "progressTitle": "Progress",
+  "progressEmptyMessage": "No workouts logged yet.\nFinish a workout to see your progress.",
+  "bodyweightChartTitle": "Bodyweight",
+  "logMoreToSeeTrend": "Log one more session to see a trend.",
+
+  "create": "Create",
+  "edit": "Edit",
+  "delete": "Delete",
+  "start": "Start",
+  "schedule": "Schedule",
+
+  "programsWeightsTab": "Weights",
+  "programsEmptyMessage": "No programs yet.\nTap Create to build one.",
+  "programsSectionMine": "My programs",
+  "programsSectionTemplates": "Templates",
+  "scheduleUpdateCta": "Update schedule",
+  "scheduleUseCta": "Use this program",
+  "scheduleUpdatedMessage": "Schedule updated",
+  "programNowActiveMessage": "{name} is now active",
+  "@programNowActiveMessage": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "currentProgramLabel": "Current program",
+  "nextWorkoutLabel": "Next: {next}",
+  "@nextWorkoutLabel": {
+    "placeholders": {
+      "next": {"type": "String"}
+    }
+  },
+  "detailsTooltip": "Details",
+  "noActiveProgramBanner": "No active program. Pick one below to start training.",
+  "duplicateAndCustomize": "Duplicate & customize",
+  "deleteProgramConfirmTitle": "Delete \"{name}\"?",
+  "@deleteProgramConfirmTitle": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "deleteProgramConfirmMessage": "This removes the program. It cannot be undone.",
+  "setsRepsTooltip": "Sets & reps",
+
+  "programNotFound": "Program not found.",
+  "trainingDays": "Training days",
+  "pickTrainingDaysHint": "Pick the days you train. Workouts rotate across them.",
+  "workoutsLabel": "Workouts",
+
+  "newProgramTitle": "New program",
+  "editProgramTitle": "Edit program",
+  "programNameLabel": "Program name",
+  "addWorkoutDay": "Add workout day",
+  "programSavedMessage": "Program saved",
+  "renameDayTooltip": "Rename day",
+  "removeDayTooltip": "Remove day",
+  "noExercisesYet": "No exercises yet.",
+  "removeExerciseTooltip": "Remove exercise",
+  "addExercise": "Add exercise",
+
+  "searchExercisesHint": "Search exercises",
+  "noMatchingExercises": "No matching exercises.",
+
+  "couldNotStartWorkout": "Could not start workout.\n{error}",
+  "@couldNotStartWorkout": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "leaveWorkoutTitle": "Leave workout?",
+  "leaveWorkoutMessage": "Your logged sets will be discarded — finish the workout to save them.",
+  "keepGoing": "Keep going",
+  "leave": "Leave",
+  "finishWorkoutTitle": "Finish workout?",
+  "finishWorkoutMessage": "{count, plural, one {{count} set is not logged. Only logged sets are saved.} other {{count} sets are not logged. Only logged sets are saved.}}",
+  "@finishWorkoutMessage": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+
+  "switchWorkoutTooltip": "Switch workout",
+  "finish": "Finish",
+  "workoutTab": "Workout",
+  "warmupTab": "Warmup",
+  "allSetsLogged": "All sets logged",
+  "setsProgress": "{done} / {total} sets",
+  "@setsProgress": {
+    "placeholders": {
+      "done": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  },
+  "restLabel": "Rest",
+  "skip": "Skip",
+  "logBodyWeightTitle": "Log body weight",
+  "howToPerform": "How to perform",
+  "noInstructionsYet": "No instructions for this exercise yet.",
+  "bodyWeightLabel": "Body weight",
+  "logAction": "Log",
+  "noWarmupNeeded": "No warmup needed — start with the working weight.",
+  "emptyBarLabel": "empty bar",
+  "perSideLabel": "{value} {unit}/side",
+  "@perSideLabel": {
+    "placeholders": {
+      "value": {"type": "String"},
+      "unit": {"type": "String"}
+    }
+  },
+
+  "setOfLabel": "Set {current} of {total}",
+  "@setOfLabel": {
+    "placeholders": {
+      "current": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  },
+  "tapToTypeHint": "{unit} · tap to type",
+  "@tapToTypeHint": {
+    "placeholders": {
+      "unit": {"type": "String"}
+    }
+  },
+  "deloadPercentLabel": "Deload {percent}%",
+  "@deloadPercentLabel": {
+    "placeholders": {
+      "percent": {"type": "String"}
+    }
+  },
+  "removeSetButton": "Remove set",
+  "addSetButton": "Add set",
+  "evenOutAllSets": "Even out all sets",
+  "close": "Close",
+  "setColumnHeader": "Set",
+  "repsColumnHeader": "Reps",
+
+  "niceWork": "Nice work!",
+  "dayCompleteLabel": "{dayName} complete",
+  "@dayCompleteLabel": {
+    "placeholders": {
+      "dayName": {"type": "String"}
+    }
+  },
+  "setsLoggedLabel": "Sets logged",
+  "totalVolumeLabel": "Total volume",
+  "done": "Done",
+
+  "exerciseNotFound": "Exercise not found.",
+  "currentLabel": "Current",
+  "noInstructionsYetShort": "No instructions yet.",
+  "recentTopSets": "Recent top sets",
+
+  "exportFailed": "Export failed: {error}",
+  "@exportFailed": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "couldNotReadFile": "Could not read file: {error}",
+  "@couldNotReadFile": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "restoreConfirmTitle": "Restore from backup?",
+  "restoreConfirmMessage": "This replaces all current data with the backup. Your current data is saved to a safety file first, but this cannot be undone in the app.",
+  "replace": "Replace",
+  "backupRestoredMessage": "Backup restored",
+  "restoreFailed": "Restore failed: {error}",
+  "@restoreFailed": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  }
+}

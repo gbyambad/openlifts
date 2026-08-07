@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:openlifts/core/database/tables.dart';
 import 'package:openlifts/core/units/units.dart';
+import 'package:openlifts/l10n/app_localizations.dart';
 
 /// A celebratory end-of-workout summary: sets logged and total volume, shown
 /// after a session is saved.
@@ -18,6 +19,7 @@ Future<void> showWorkoutSummary(
     builder: (context) {
       final theme = Theme.of(context);
       final scheme = theme.colorScheme;
+      final loc = AppLocalizations.of(context)!;
       final volume = formatWeight(displayWeight(volumeKg, unit));
       return SingleChildScrollView(
         padding: EdgeInsets.fromLTRB(
@@ -40,10 +42,10 @@ Future<void> showWorkoutSummary(
               child: Icon(Icons.check_rounded, size: 44, color: scheme.primary),
             ),
             const SizedBox(height: 16),
-            Text('Nice work!', style: theme.textTheme.headlineSmall),
+            Text(loc.niceWork, style: theme.textTheme.headlineSmall),
             const SizedBox(height: 4),
             Text(
-              '$dayName complete',
+              loc.dayCompleteLabel(dayName),
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: scheme.onSurfaceVariant,
               ),
@@ -52,11 +54,11 @@ Future<void> showWorkoutSummary(
             Row(
               children: [
                 Expanded(
-                  child: _Stat(label: 'Sets logged', value: '$setsDone'),
+                  child: _Stat(label: loc.setsLoggedLabel, value: '$setsDone'),
                 ),
                 Expanded(
                   child: _Stat(
-                    label: 'Total volume',
+                    label: loc.totalVolumeLabel,
                     value: '$volume ${unit.name}',
                   ),
                 ),
@@ -67,7 +69,7 @@ Future<void> showWorkoutSummary(
               width: double.infinity,
               child: FilledButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Done'),
+                child: Text(loc.done),
               ),
             ),
           ],

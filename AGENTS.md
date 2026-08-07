@@ -129,6 +129,32 @@ of drift (a common mistake).
 - After adding or changing any `@riverpod`, `@freezed`, or `@JsonSerializable`
   code, **run build_runner** (see commands) or the app won't compile.
 
+## Localization
+
+The UI supports **English + Mongolian** via Flutter's official `gen-l10n`
+tooling. Conventions:
+
+- **Every user-facing string goes through `AppLocalizations`**, never a raw
+  string literal in a widget. In a widget: `AppLocalizations.of(context)!.key`.
+  In an `application`-layer provider (no `BuildContext`), watch
+  `appLocalizationsProvider` (`lib/features/settings/application/settings_providers.dart`).
+- **Source of truth is `lib/l10n/app_en.arb`** (the template); add the same key
+  to `lib/l10n/app_mn.arb` in the same change — mismatched keys fail codegen.
+  Run `flutter gen-l10n` (or `flutter pub get`, which triggers it via
+  `generate: true` in `pubspec.yaml`) after editing either file.
+- **Plurals** use ICU plural syntax in the `.arb` entry
+  (`{count, plural, one{...} other{...}}`) — Mongolian has no plural
+  inflection, so its translation only needs an `other` form.
+- **Exception**: the 37-exercise catalog (`assets/seed/exercises.json`, names +
+  instructions) is intentionally English-only for now — it's seeded data, not
+  UI chrome, and translating it needs a separate locale-aware reseed mechanism.
+- **Language selection** is manual (Settings → Language: System/Монгол/English),
+  stored in `Settings.languageMode` (mirrors the existing `themeMode` pattern)
+  and resolved to a `Locale?` by `localeProvider`.
+- **Widget tests**: wrap the widget under test with `wrapWithLocalizations()`
+  from `test/support/test_app.dart` instead of a bare `MaterialApp(home: ...)`
+  — without the delegate, `AppLocalizations.of(context)!` throws.
+
 ## Comments
 
 Comment the **why**, not the **what** — the code already says what it does. A

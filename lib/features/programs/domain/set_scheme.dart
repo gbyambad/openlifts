@@ -1,16 +1,17 @@
 import 'package:openlifts/core/database/app_database.dart';
 import 'package:openlifts/core/database/tables.dart';
 import 'package:openlifts/features/programs/domain/program_repository.dart';
+import 'package:openlifts/l10n/app_localizations.dart';
 
 /// The set schemes OpenLifts supports editing (a subset of StrongLifts' list —
 /// pyramid/reverse/custom aren't modelled yet).
 enum SetSchemeType { straight, topBackoff, ramp }
 
 extension SetSchemeTypeLabel on SetSchemeType {
-  String get label => switch (this) {
-        SetSchemeType.straight => 'Straight sets',
-        SetSchemeType.topBackoff => 'Top / Back-off',
-        SetSchemeType.ramp => 'Ramp',
+  String label(AppLocalizations loc) => switch (this) {
+        SetSchemeType.straight => loc.setSchemeStraight,
+        SetSchemeType.topBackoff => loc.setSchemeTopBackoff,
+        SetSchemeType.ramp => loc.setSchemeRamp,
       };
 }
 

@@ -1,11 +1,14 @@
+import 'dart:ui' show PlatformDispatcher;
+
 import 'package:drift/drift.dart' show Value;
-import 'package:flutter/material.dart' show ThemeMode;
+import 'package:flutter/material.dart' show Locale, ThemeMode;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:openlifts/core/database/app_database.dart';
 import 'package:openlifts/core/database/tables.dart';
 import 'package:openlifts/core/providers/database_provider.dart';
 import 'package:openlifts/features/settings/data/settings_repository_impl.dart';
 import 'package:openlifts/features/settings/domain/settings_repository.dart';
+import 'package:openlifts/l10n/app_localizations.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'settings_providers.g.dart';
@@ -27,6 +30,47 @@ final themeModeProvider = Provider<ThemeMode>(
         orElse: () => ThemeMode.dark,
       ),
 );
+
+/// The active UI language mode (`system`/`en`/`mn`), defaulting to `system`
+/// until settings load.
+final languageModeProvider = Provider<AppLanguage>(
+  (ref) => ref.watch(settingsProvider).maybeWhen(
+        data: (s) => s.languageMode,
+        orElse: () => AppLanguage.system,
+      ),
+);
+
+/// The [Locale] to hand `MaterialApp`; `null` means "follow the device
+/// locale", matching `MaterialApp.locale`'s own contract.
+final localeProvider = Provider<Locale?>((ref) {
+  switch (ref.watch(languageModeProvider)) {
+    case AppLanguage.system:
+      return null;
+    case AppLanguage.en:
+      return const Locale('en');
+    case AppLanguage.mn:
+      return const Locale('mn');
+  }
+});
+
+/// A concrete, always-supported [AppLocalizations] instance for
+/// application-layer code (Riverpod providers) that builds user-facing
+/// strings but has no `BuildContext` to call `AppLocalizations.of`.
+final appLocalizationsProvider = Provider<AppLocalizations>((ref) {
+  final languageCode = switch (ref.watch(languageModeProvider)) {
+    AppLanguage.en => 'en',
+    AppLanguage.mn => 'mn',
+    AppLanguage.system => _systemLanguageCode(),
+  };
+  return lookupAppLocalizations(Locale(languageCode));
+});
+
+String _systemLanguageCode() {
+  final code = PlatformDispatcher.instance.locale.languageCode;
+  return AppLocalizations.supportedLocales.any((l) => l.languageCode == code)
+      ? code
+      : 'en';
+}
 
 /// Edits to app settings.
 ///
@@ -50,6 +94,9 @@ class SettingsController extends _$SettingsController {
 
   Future<void> setThemeMode(ThemeMode mode) =>
       _save(SettingsCompanion(themeMode: Value(mode)));
+
+  Future<void> setLanguageMode(AppLanguage mode) =>
+      _save(SettingsCompanion(languageMode: Value(mode)));
 
   Future<void> _save(SettingsCompanion changes) =>
       ref.read(settingsRepositoryProvider).save(changes);

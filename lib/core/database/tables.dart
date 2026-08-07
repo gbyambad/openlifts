@@ -45,6 +45,9 @@ enum ScheduleMode { timesPerWeek, everyNDays, fixedWeekdays }
 
 enum Section { main, accessory }
 
+/// The app's UI language; `system` follows the device locale.
+enum AppLanguage { system, en, mn }
+
 /// The exercise catalog: intrinsic properties + per-exercise (global)
 /// progression config. Volume (sets/reps) lives on prescriptions, not here.
 class Exercises extends Table {
@@ -195,6 +198,10 @@ class Settings extends Table {
   // Stored as the ThemeMode enum name; defaults to the brand's dark ground.
   TextColumn get themeMode =>
       textEnum<ThemeMode>().withDefault(const Constant('dark'))();
+
+  // Stored as the AppLanguage enum name; 'system' follows the device locale.
+  TextColumn get languageMode =>
+      textEnum<AppLanguage>().withDefault(const Constant('system'))();
 
   // When the user last acted on a welcome-back deload prompt (applied or
   // dismissed) — so the same layoff isn't prompted twice.

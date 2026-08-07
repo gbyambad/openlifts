@@ -1,9 +1,28 @@
-/// Short day-of-week names, Monday-first. Index with `DateTime.weekday - 1`
-/// (`DateTime.weekday` is 1 = Mon … 7 = Sun).
-const weekdayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+import 'package:openlifts/l10n/app_localizations.dart';
 
-/// Short month names. Index with `DateTime.month - 1` (1 = Jan … 12 = Dec).
-const monthLabels = [
-  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', //
-  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
-];
+/// Short day-of-week label. Index with `DateTime.weekday` (1 = Mon … 7 = Sun).
+String weekdayShort(AppLocalizations loc, int weekday) => [
+      loc.weekdayMon,
+      loc.weekdayTue,
+      loc.weekdayWed,
+      loc.weekdayThu,
+      loc.weekdayFri,
+      loc.weekdaySat,
+      loc.weekdaySun,
+    ][weekday - 1];
+
+/// Short month label. Index with `DateTime.month` (1 = Jan … 12 = Dec).
+String monthShort(AppLocalizations loc, int month) => [
+      loc.monthJan,
+      loc.monthFeb,
+      loc.monthMar,
+      loc.monthApr,
+      loc.monthMay,
+      loc.monthJun,
+      loc.monthJul,
+      loc.monthAug,
+      loc.monthSep,
+      loc.monthOct,
+      loc.monthNov,
+      loc.monthDec,
+    ][month - 1];

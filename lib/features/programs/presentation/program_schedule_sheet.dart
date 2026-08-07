@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:openlifts/l10n/app_localizations.dart';
 import 'package:openlifts/shared/widgets/weekday_picker.dart';
 
 /// A lightweight day-picker sheet used both to activate a program (first-time
@@ -65,7 +66,7 @@ class _ScheduleSheetState extends State<_ScheduleSheet> {
           Text(widget.title, style: theme.textTheme.titleMedium),
           const SizedBox(height: 4),
           Text(
-            'Pick the days you train. Workouts rotate across them.',
+            AppLocalizations.of(context)!.pickTrainingDaysHint,
             style: theme.textTheme.bodySmall?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),
