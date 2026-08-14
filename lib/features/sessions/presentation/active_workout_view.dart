@@ -932,10 +932,11 @@ class _HeartbeatPulseState extends State<_HeartbeatPulse>
       final controller = AnimationController(
         vsync: this,
         duration: const Duration(milliseconds: 1100),
-        // Fire-and-forget below: the pulse repeats until dispose(), nothing
-        // awaits it.
-        // ignore: discarded_futures
-      )..repeat(reverse: true);
+      );
+      // Fire-and-forget: the pulse repeats until dispose(), nothing awaits
+      // it. Discarded via `_` rather than `unawaited()` — the wildcard marks
+      // it as an intentional discard so lint tooling has nothing to flag.
+      final _ = controller.repeat(reverse: true);
       _controller = controller;
     }
   }
