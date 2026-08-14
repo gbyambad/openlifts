@@ -932,8 +932,10 @@ class _HeartbeatPulseState extends State<_HeartbeatPulse>
       final controller = AnimationController(
         vsync: this,
         duration: const Duration(milliseconds: 1100),
-      );
-      unawaited(controller.repeat(reverse: true));
+        // Fire-and-forget below: the pulse repeats until dispose(), nothing
+        // awaits it.
+        // ignore: discarded_futures
+      )..repeat(reverse: true);
       _controller = controller;
     }
   }
