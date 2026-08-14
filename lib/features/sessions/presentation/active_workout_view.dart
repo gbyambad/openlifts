@@ -290,17 +290,15 @@ class _WorkoutTabState extends State<_WorkoutTab> {
   }
 
   void _scrollToCurrentLift() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted || _currentLift >= _cardKeys.length) return;
       final ctx = _cardKeys[_currentLift].currentContext;
       if (ctx == null) return;
-      unawaited(
-        Scrollable.ensureVisible(
-          ctx,
-          alignment: 0.05, // pin near the top, leaving a sliver of the prior
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
-        ),
+      await Scrollable.ensureVisible(
+        ctx,
+        alignment: 0.05, // pin near the top, leaving a sliver of the prior
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
       );
     });
   }
@@ -935,7 +933,10 @@ class _HeartbeatPulseState extends State<_HeartbeatPulse>
         vsync: this,
         duration: const Duration(milliseconds: 1100),
       );
-      unawaited(controller.repeat(reverse: true));
+      // Fire-and-forget: the pulse repeats until dispose(), nothing awaits
+      // it. Discarded via `_` rather than `unawaited()` — the wildcard marks
+      // it as an intentional discard so lint tooling has nothing to flag.
+      final _ = controller.repeat(reverse: true);
       _controller = controller;
     }
   }
@@ -1027,17 +1028,15 @@ class _WarmupTabState extends State<_WarmupTab> {
   }
 
   void _scrollToCurrentLift() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted || _currentLift >= _sectionKeys.length) return;
       final ctx = _sectionKeys[_currentLift].currentContext;
       if (ctx == null) return;
-      unawaited(
-        Scrollable.ensureVisible(
-          ctx,
-          alignment: 0.05, // pin near the top, leaving a sliver of the prior
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
-        ),
+      await Scrollable.ensureVisible(
+        ctx,
+        alignment: 0.05, // pin near the top, leaving a sliver of the prior
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
       );
     });
   }
