@@ -290,17 +290,15 @@ class _WorkoutTabState extends State<_WorkoutTab> {
   }
 
   void _scrollToCurrentLift() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted || _currentLift >= _cardKeys.length) return;
       final ctx = _cardKeys[_currentLift].currentContext;
       if (ctx == null) return;
-      unawaited(
-        Scrollable.ensureVisible(
-          ctx,
-          alignment: 0.05, // pin near the top, leaving a sliver of the prior
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
-        ),
+      await Scrollable.ensureVisible(
+        ctx,
+        alignment: 0.05, // pin near the top, leaving a sliver of the prior
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
       );
     });
   }
@@ -1027,17 +1025,15 @@ class _WarmupTabState extends State<_WarmupTab> {
   }
 
   void _scrollToCurrentLift() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted || _currentLift >= _sectionKeys.length) return;
       final ctx = _sectionKeys[_currentLift].currentContext;
       if (ctx == null) return;
-      unawaited(
-        Scrollable.ensureVisible(
-          ctx,
-          alignment: 0.05, // pin near the top, leaving a sliver of the prior
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
-        ),
+      await Scrollable.ensureVisible(
+        ctx,
+        alignment: 0.05, // pin near the top, leaving a sliver of the prior
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
       );
     });
   }
