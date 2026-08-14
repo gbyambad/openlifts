@@ -231,34 +231,59 @@ class _DayCard extends StatelessWidget {
   }
 
   Future<void> _rename(BuildContext context) async {
-    final loc = AppLocalizations.of(context)!;
-    final controller = TextEditingController(text: day.name);
-    String? name;
-    try {
-      name = await showDialog<String>(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text(loc.renameDayTooltip),
-          content: TextField(
-            controller: controller,
-            autofocus: true,
-            textCapitalization: TextCapitalization.words,
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(loc.cancel),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.pop(context, controller.text.trim()),
-              child: Text(loc.save),
-            ),
-          ],
-        ),
-      );
-    } finally {
-      controller.dispose();
-    }
+    final name = await showDialog<String>(
+      context: context,
+      builder: (context) => _RenameDayDialog(initialName: day.name),
+    );
     if (name != null && name.isNotEmpty) onRename(name);
+  }
+}
+
+/// The rename-day prompt, as its own widget so the [TextEditingController]'s
+/// lifetime is tied to this dialog's own [State.dispose] — called only once
+/// the dialog is actually removed from the tree. Disposing it right after
+/// `showDialog` returns (the future completes as soon as the route pops, not
+/// after its exit transition finishes) used the controller while the dialog
+/// was still fading out and crashed the rename flow.
+class _RenameDayDialog extends StatefulWidget {
+  const _RenameDayDialog({required this.initialName});
+
+  final String initialName;
+
+  @override
+  State<_RenameDayDialog> createState() => _RenameDayDialogState();
+}
+
+class _RenameDayDialogState extends State<_RenameDayDialog> {
+  late final TextEditingController _controller =
+      TextEditingController(text: widget.initialName);
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+    return AlertDialog(
+      title: Text(loc.renameDayTooltip),
+      content: TextField(
+        controller: _controller,
+        autofocus: true,
+        textCapitalization: TextCapitalization.words,
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text(loc.cancel),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.pop(context, _controller.text.trim()),
+          child: Text(loc.save),
+        ),
+      ],
+    );
   }
 }
