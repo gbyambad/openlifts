@@ -260,6 +260,39 @@ class AppLocalizationsMn extends AppLocalizations {
       'Чиг хандлагыг харахын тулд өөр нэг удаагийн бичлэг хийнэ үү.';
 
   @override
+  String get progressRangeOneMonth => '1 сар';
+
+  @override
+  String get progressRangeThreeMonths => '3 сар';
+
+  @override
+  String get progressRangeSixMonths => '6 сар';
+
+  @override
+  String get progressRangeOneYear => '1 жил';
+
+  @override
+  String get progressRangeAll => 'Бүгд';
+
+  @override
+  String get progressRangeEmptyMessage => 'Энэ хугацаанд бүртгэл алга байна.';
+
+  @override
+  String get progressOverallTitle => 'Ерөнхий';
+
+  @override
+  String get progressStatStrength => 'Хүч чадал';
+
+  @override
+  String get progressChartsTitle => 'График';
+
+  @override
+  String get progressChartVolume => 'Дасгалын хэмжээ';
+
+  @override
+  String get progressRecordsTitle => 'Хувийн дээд амжилт';
+
+  @override
   String get create => 'Үүсгэх';
 
   @override

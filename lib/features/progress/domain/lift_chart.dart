@@ -8,6 +8,37 @@ class WeightPoint {
   final double weightKg;
 }
 
+/// Time window for how much history a progress chart shows.
+enum ProgressRange {
+  oneMonth(days: 30),
+  threeMonths(days: 90),
+  sixMonths(days: 182),
+  oneYear(days: 365),
+  all(days: null);
+
+  const ProgressRange({required this.days});
+
+  /// How many days of history this range covers, back from today. Null
+  /// means no cutoff — all logged history.
+  final int? days;
+}
+
+/// Keep only the points logged on or after the start of [range], relative to
+/// [now]. Points are assumed to already be sorted ascending by date.
+List<WeightPoint> filterPointsByRange(
+  List<WeightPoint> points,
+  ProgressRange range,
+  DateTime now,
+) {
+  final days = range.days;
+  if (days == null) return points;
+  final cutoff = now.subtract(Duration(days: days));
+  return [
+    for (final p in points)
+      if (!p.date.isBefore(cutoff)) p,
+  ];
+}
+
 /// A single lift's weight-over-time series, ready to plot.
 class LiftChart {
   const LiftChart({

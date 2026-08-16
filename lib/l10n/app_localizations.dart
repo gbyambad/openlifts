@@ -524,6 +524,72 @@ abstract class AppLocalizations {
   /// **'Log one more session to see a trend.'**
   String get logMoreToSeeTrend;
 
+  /// No description provided for @progressRangeOneMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'1M'**
+  String get progressRangeOneMonth;
+
+  /// No description provided for @progressRangeThreeMonths.
+  ///
+  /// In en, this message translates to:
+  /// **'3M'**
+  String get progressRangeThreeMonths;
+
+  /// No description provided for @progressRangeSixMonths.
+  ///
+  /// In en, this message translates to:
+  /// **'6M'**
+  String get progressRangeSixMonths;
+
+  /// No description provided for @progressRangeOneYear.
+  ///
+  /// In en, this message translates to:
+  /// **'1Y'**
+  String get progressRangeOneYear;
+
+  /// No description provided for @progressRangeAll.
+  ///
+  /// In en, this message translates to:
+  /// **'ALL'**
+  String get progressRangeAll;
+
+  /// No description provided for @progressRangeEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'No data in this range yet.'**
+  String get progressRangeEmptyMessage;
+
+  /// No description provided for @progressOverallTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Overall'**
+  String get progressOverallTitle;
+
+  /// No description provided for @progressStatStrength.
+  ///
+  /// In en, this message translates to:
+  /// **'Strength'**
+  String get progressStatStrength;
+
+  /// No description provided for @progressChartsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Charts'**
+  String get progressChartsTitle;
+
+  /// No description provided for @progressChartVolume.
+  ///
+  /// In en, this message translates to:
+  /// **'Training Volume'**
+  String get progressChartVolume;
+
+  /// No description provided for @progressRecordsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal Records'**
+  String get progressRecordsTitle;
+
   /// No description provided for @create.
   ///
   /// In en, this message translates to:

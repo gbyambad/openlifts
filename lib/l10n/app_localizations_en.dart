@@ -263,6 +263,39 @@ class AppLocalizationsEn extends AppLocalizations {
   String get logMoreToSeeTrend => 'Log one more session to see a trend.';
 
   @override
+  String get progressRangeOneMonth => '1M';
+
+  @override
+  String get progressRangeThreeMonths => '3M';
+
+  @override
+  String get progressRangeSixMonths => '6M';
+
+  @override
+  String get progressRangeOneYear => '1Y';
+
+  @override
+  String get progressRangeAll => 'ALL';
+
+  @override
+  String get progressRangeEmptyMessage => 'No data in this range yet.';
+
+  @override
+  String get progressOverallTitle => 'Overall';
+
+  @override
+  String get progressStatStrength => 'Strength';
+
+  @override
+  String get progressChartsTitle => 'Charts';
+
+  @override
+  String get progressChartVolume => 'Training Volume';
+
+  @override
+  String get progressRecordsTitle => 'Personal Records';
+
+  @override
   String get create => 'Create';
 
   @override
