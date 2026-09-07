@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:openlifts/core/units/loadable.dart';
 
 /// One computed warmup set.
@@ -8,26 +10,46 @@ class WarmupSet {
   final int reps;
 }
 
-/// The weight added between warmup sets — one plate pair, matching
-/// StrongLifts' "no jump larger than 20 kg / 45 lb" rule.
-const _warmupStepKg = 20.0;
+/// The largest weight added between two consecutive sets of the ramp,
+/// matching StrongLifts' "no jump larger than 20 kg / 45 lb" rule.
+const _maxJumpKg = 20.0;
+
+/// The heaviest first set of a loaded ramp. Deadlift/row start off the floor,
+/// so they never warm up at the empty bar — but the first set scales with the
+/// work weight instead of sitting at a flat 60 kg, which used to be 92% of a
+/// 65 kg deadlift (and skipped warmups entirely below 60 kg).
+const _maxLoadedStartKg = 60.0;
 
 /// Computes the warmup ramp for a work set, from the anchor weight.
 ///
 /// Empty-bar lifts start with two sets at the bar; lifts that start loaded
-/// (deadlift/row — the bar rests on the floor) start heavier. Intermediate
-/// sets add a fixed [_warmupStepKg] each and stay below the work weight, so
-/// they land on clean plate-friendly loads (40, 60, 80…) the way StrongLifts'
-/// calculator does — rather than evenly dividing the gap into off-plate
-/// weights. The short final jump into the work set is expected. Warmups are 5
-/// reps, except the last heavy set — StrongLifts tapers it to 3 to save energy
-/// for the work sets.
+/// (deadlift/row — the bar rests on the floor) start at half the work weight,
+/// capped at [_maxLoadedStartKg] and floored at the bar plus one plate pair so
+/// there is always enough plate to lift from.
+///
+/// The gap from there to the work set is split into equal jumps, as few as
+/// possible while keeping every jump — including the last one, into the work
+/// set — at or below [_maxJumpKg]. At 100 kg that reproduces StrongLifts'
+/// 20/20/40/60/80 exactly; at weights that don't divide evenly by 20 the
+/// remainder is spread across the whole ramp, so the top warmup sits a full
+/// jump below the work set instead of crowding it (65 kg used to warm up at
+/// 60 kg — 92% — and 110 kg at 100 kg).
+/// Warmups are 5 reps, except the last heavy set — StrongLifts tapers it to 3
+/// to save energy for the work sets.
 List<WarmupSet> computeWarmups(
   double workWeightKg, {
   required bool startsLoaded,
   double barKg = 20,
 }) {
-  final start = startsLoaded ? 60.0 : barKg;
+  final start = startsLoaded
+      ? math.min(
+          _maxLoadedStartKg,
+          math.max(
+            barKg + kgPlateStep * 2,
+            roundToLoadableKg(workWeightKg / 2),
+          ),
+        )
+      : barKg;
   if (workWeightKg <= start) return const [];
 
   final sets = <WarmupSet>[
@@ -35,9 +57,13 @@ List<WarmupSet> computeWarmups(
     if (!startsLoaded) WarmupSet(weightKg: start, reps: 5),
   ];
 
-  for (var w = start + _warmupStepKg; w < workWeightKg; w += _warmupStepKg) {
-    final loadable = roundToLoadableKg(w);
-    if (loadable >= workWeightKg) break;
+  // One jump lands on the work set itself, so n ramp sets means n + 1 jumps.
+  final gap = workWeightKg - start;
+  final jumps = math.max(1, (gap / _maxJumpKg).ceil());
+  final jump = gap / jumps;
+  for (var i = 1; i < jumps; i++) {
+    final loadable = roundToLoadableKg(start + jump * i);
+    if (loadable <= sets.last.weightKg || loadable >= workWeightKg) continue;
     sets.add(WarmupSet(weightKg: loadable, reps: 5));
   }
 
