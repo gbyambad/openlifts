@@ -55,6 +55,8 @@ dev_dependencies:
   drift_dev: ^2.34.0
   # Launcher icons
   flutter_launcher_icons: ^0.14.3
+  # Palette-PNG encoding for the baked exercise sprites (tool/export_sprites)
+  image: ^4.5.0
   integration_test:
     sdk: flutter
 flutter_launcher_icons:
@@ -72,6 +74,7 @@ flutter:
   assets:
     - assets/brand/
     - assets/seed/
+    - assets/sprites/
   fonts:
     - family: Barlow
       fonts:

@@ -243,6 +243,15 @@
   "skip": "Skip",
   "logBodyWeightTitle": "Log body weight",
   "howToPerform": "How to perform",
+  "exerciseDemoLabel": "Animated demonstration of {name}",
+  "@exerciseDemoLabel": {
+    "description": "Screen-reader label for the looping cartoon that shows how to perform a lift",
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "exerciseDemoPlay": "Play",
+  "exerciseDemoPause": "Pause",
   "noInstructionsYet": "No instructions for this exercise yet.",
   "bodyWeightLabel": "Body weight",
   "logAction": "Log",

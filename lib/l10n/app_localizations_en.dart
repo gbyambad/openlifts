@@ -481,6 +481,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get howToPerform => 'How to perform';
 
   @override
+  String exerciseDemoLabel(String name) {
+    return 'Animated demonstration of $name';
+  }
+
+  @override
+  String get exerciseDemoPlay => 'Play';
+
+  @override
+  String get exerciseDemoPause => 'Pause';
+
+  @override
   String get noInstructionsYet => 'No instructions for this exercise yet.';
 
   @override

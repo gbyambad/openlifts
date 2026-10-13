@@ -478,6 +478,17 @@ class AppLocalizationsMn extends AppLocalizations {
   String get howToPerform => 'Хэрхэн хийх';
 
   @override
+  String exerciseDemoLabel(String name) {
+    return 'Хөдөлгөөнт үзүүлэн: $name';
+  }
+
+  @override
+  String get exerciseDemoPlay => 'Тоглуулах';
+
+  @override
+  String get exerciseDemoPause => 'Зогсоох';
+
+  @override
   String get noInstructionsYet => 'Энэ дасгалын зааварчилгаа одоохондоо алга.';
 
   @override

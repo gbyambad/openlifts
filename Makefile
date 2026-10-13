@@ -6,7 +6,7 @@
 # Run `make` (or `make help`) to list targets.
 
 .DEFAULT_GOAL := help
-.PHONY: help setup get gen watch hooks format analyze test check run run-android run-ios clean
+.PHONY: help setup get gen watch hooks format analyze test check sprites run run-android run-ios clean
 
 help: ## List available targets
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
@@ -36,6 +36,9 @@ test: ## Run the test suite
 	flutter test
 
 check: format analyze test ## Format + analyze + test (the definition of done)
+
+sprites: ## Re-bake the exercise demo sprite sheets (after editing a motion)
+	flutter test tool/export_sprites.dart
 
 run: ## Launch the app on the default device
 	flutter run

@@ -914,6 +914,24 @@ abstract class AppLocalizations {
   /// **'How to perform'**
   String get howToPerform;
 
+  /// Screen-reader label for the looping cartoon that shows how to perform a lift
+  ///
+  /// In en, this message translates to:
+  /// **'Animated demonstration of {name}'**
+  String exerciseDemoLabel(String name);
+
+  /// No description provided for @exerciseDemoPlay.
+  ///
+  /// In en, this message translates to:
+  /// **'Play'**
+  String get exerciseDemoPlay;
+
+  /// No description provided for @exerciseDemoPause.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause'**
+  String get exerciseDemoPause;
+
   /// No description provided for @noInstructionsYet.
   ///
   /// In en, this message translates to:

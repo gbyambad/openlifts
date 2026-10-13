@@ -5,6 +5,7 @@ import 'package:openlifts/core/theme/semantic_colors.dart';
 import 'package:openlifts/features/sessions/application/active_workout_controller.dart';
 import 'package:openlifts/features/sessions/presentation/active_workout_view.dart';
 import 'package:openlifts/features/workout/domain/warmup_calculator.dart';
+import 'package:openlifts/shared/exercise_demo/exercise_demo.dart';
 
 import '../../support/test_app.dart';
 
@@ -988,5 +989,37 @@ void main() {
 
     // Scrolled down to bring the last lift's ramp into view.
     expect(warmupScroll().offset, greaterThan(0));
+  });
+
+  testWidgets('the lift info sheet shows the animated demo', (tester) async {
+    _phoneSurface(tester);
+    const state = WorkoutState(
+      dayId: 'a',
+      dayName: 'Workout A',
+      unit: Unit.kg,
+      isLinear: true,
+      lifts: [
+        ActiveLift(
+          exerciseId: 'squat',
+          name: 'Squat',
+          anchorKg: 60,
+          warmups: [],
+          incrementKg: 2.5,
+          deloadAfterFails: 3,
+          deloadPercent: 10,
+          workingSets: [ActiveSet(index: 0, weightKg: 60, targetReps: 5)],
+        ),
+      ],
+    );
+
+    await tester.pumpWidget(wrapWithLocalizations(_view(state)));
+    await tester.tap(find.byIcon(Icons.info_outline));
+    // The sheet's route sits above the reduced-motion wrapper, so the demo
+    // loops forever — pump a fixed time instead of settling.
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+
+    expect(find.text('How to perform'), findsOneWidget);
+    expect(find.byType(ExerciseDemo), findsOneWidget);
   });
 }

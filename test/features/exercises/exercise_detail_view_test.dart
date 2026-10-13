@@ -5,6 +5,7 @@ import 'package:openlifts/core/database/app_database.dart';
 import 'package:openlifts/core/database/tables.dart';
 import 'package:openlifts/features/exercises/presentation/exercise_detail_screen.dart';
 import 'package:openlifts/features/progress/domain/lift_chart.dart';
+import 'package:openlifts/shared/exercise_demo/exercise_demo.dart';
 
 import '../../support/test_app.dart';
 
@@ -44,6 +45,42 @@ void main() {
     expect(find.text('How to perform'), findsOneWidget);
   });
 
+  testWidgets('shows the animated demo for a lift that has one',
+      (tester) async {
+    final ex = await insertSquat();
+
+    await tester.pumpWidget(
+      wrapWithLocalizations(
+        ExerciseDetailView(exercise: ex, history: const [], unit: Unit.kg),
+      ),
+    );
+
+    expect(find.byType(ExerciseDemo), findsOneWidget);
+  });
+
+  testWidgets('omits the demo for a lift without one', (tester) async {
+    // A user-made exercise: the seeded catalog all has demos.
+    await db.into(db.exercises).insert(
+          ExercisesCompanion.insert(
+            id: 'zercher_carry',
+            name: 'Zercher Carry',
+            equipment: Equipment.barbell,
+            incrementKg: 2.5,
+          ),
+        );
+    final carry = await (db.select(db.exercises)
+          ..where((t) => t.id.equals('zercher_carry')))
+        .getSingle();
+
+    await tester.pumpWidget(
+      wrapWithLocalizations(
+        ExerciseDetailView(exercise: carry, history: const [], unit: Unit.kg),
+      ),
+    );
+
+    expect(find.byType(ExerciseDemo), findsNothing);
+  });
+
   testWidgets('shows the current weight from history', (tester) async {
     final ex = await insertSquat();
 
@@ -64,6 +101,8 @@ void main() {
     // 65 kg appears both as the current weight and in the recent list.
     expect(find.text('65 kg'), findsWidgets);
     expect(find.text('Recent top sets'), findsOneWidget);
+    // The demo above pushes the end of the list below the fold.
+    await tester.scrollUntilVisible(find.text('60 kg'), 100);
     expect(find.text('60 kg'), findsOneWidget);
   });
 }

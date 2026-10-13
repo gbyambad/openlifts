@@ -74,7 +74,15 @@ Local-first persistence with Drift. Follow these conventions:
 - **Pure engines have no Drift/Riverpod dependency** — progression
   (`features/progression`), warmup (`features/workout`), set-group resolution
   and rotation/schedule (`features/programs`, `features/home`) are plain Dart,
-  unit-tested in isolation.
+  unit-tested in isolation. So is the exercise-demo rig
+  (`shared/exercise_demo`): a lift's cartoon is keyframed poses in
+  `exercise_motions.dart`, solved to joints by `lifter_rig.dart`, drawn by
+  `LifterPainter` and baked into `assets/sprites/<id>.png`, which the app
+  plays as a sprite animation (`sprite_sheet.dart`). To add or change a demo,
+  edit the motion and its `spriteSheets` entry, then run `make sprites` — a
+  test fails if a baked PNG no longer matches its declared layout. Every
+  seeded exercise has a demo (a test enforces it), so a new catalog exercise
+  needs one too.
 - **JSON columns via `TypeConverter`** (`StringListConverter`,
   `IntListConverter`) for display-only lists; never blob binary.
 

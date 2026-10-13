@@ -6,9 +6,12 @@ import 'package:openlifts/core/units/units.dart';
 import 'package:openlifts/features/exercises/application/exercise_detail.dart';
 import 'package:openlifts/features/progress/domain/lift_chart.dart';
 import 'package:openlifts/l10n/app_localizations.dart';
+import 'package:openlifts/shared/exercise_demo/exercise_demo.dart';
+import 'package:openlifts/shared/exercise_demo/sprite_sheet.dart';
 import 'package:openlifts/shared/widgets/async_view.dart';
 
-/// Exercise detail: how-to instructions plus this lift's recent history.
+/// Exercise detail: an animated demo and how-to instructions, plus this
+/// lift's recent history.
 class ExerciseDetailScreen extends ConsumerWidget {
   const ExerciseDetailScreen({required this.exerciseId, super.key});
 
@@ -53,6 +56,7 @@ class ExerciseDetailView extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final loc = AppLocalizations.of(context)!;
+    final sprites = spriteSheetFor(exercise.id);
     final chips = <String>[
       exercise.equipment.name,
       if (exercise.mechanic != null) exercise.mechanic!.name,
@@ -64,6 +68,10 @@ class ExerciseDetailView extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          if (sprites != null) ...[
+            ExerciseDemo(sheet: sprites, exerciseName: exercise.name),
+            const SizedBox(height: 16),
+          ],
           Wrap(
             spacing: 8,
             runSpacing: 8,

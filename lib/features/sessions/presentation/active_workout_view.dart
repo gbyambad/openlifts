@@ -11,6 +11,8 @@ import 'package:openlifts/features/sessions/presentation/weights_sheet.dart';
 import 'package:openlifts/features/workout/domain/plate_math.dart';
 import 'package:openlifts/features/workout/domain/warmup_calculator.dart';
 import 'package:openlifts/l10n/app_localizations.dart';
+import 'package:openlifts/shared/exercise_demo/exercise_demo.dart';
+import 'package:openlifts/shared/exercise_demo/sprite_sheet.dart';
 
 /// Presentational active-workout UI. Pure (no providers/DB) so it is
 /// widget-testable directly with a fixed [WorkoutState] and callbacks.
@@ -741,8 +743,9 @@ class _LiftCard extends StatelessWidget {
   }
 }
 
-/// Shows an exercise's how-to steps in a bottom sheet, so form cues are one tap
-/// away mid-workout without leaving the session (and losing the rest timer).
+/// Shows an exercise's demo and how-to steps in a bottom sheet, so form cues
+/// are one tap away mid-workout without leaving the session (and losing the
+/// rest timer).
 Future<void> _showExerciseInfo(BuildContext context, ActiveLift lift) {
   return showModalBottomSheet<void>(
     context: context,
@@ -751,6 +754,7 @@ Future<void> _showExerciseInfo(BuildContext context, ActiveLift lift) {
     builder: (context) {
       final theme = Theme.of(context);
       final loc = AppLocalizations.of(context)!;
+      final sprites = spriteSheetFor(lift.exerciseId);
       return SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(24, 4, 24, 24),
@@ -767,6 +771,14 @@ Future<void> _showExerciseInfo(BuildContext context, ActiveLift lift) {
                 ),
               ),
               const SizedBox(height: 14),
+              if (sprites != null) ...[
+                ExerciseDemo(
+                  sheet: sprites,
+                  exerciseName: lift.name,
+                  height: 200,
+                ),
+                const SizedBox(height: 16),
+              ],
               if (lift.instructions.isEmpty)
                 Text(
                   loc.noInstructionsYet,
